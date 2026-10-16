@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+target/
+
+# Build output
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Claude Code
+.claude/
+
+# Dev docs (not committed)
+docs/
+dev_template_v5/
+
+# Work logs
+WORKLOG.md
+
+# Tauri
+src-tauri/target/
+src-tauri/gen/
+
+# Test artifacts
+*.log

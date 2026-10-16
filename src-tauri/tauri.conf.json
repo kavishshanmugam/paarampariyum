@@ -1,0 +1,36 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicknisi/tauri-v2/refs/heads/main/src-tauri/.schema/tauri.conf.json",
+  "productName": "Parampara",
+  "version": "0.1.0",
+  "identifier": "com.parampara.app",
+  "build": {
+    "frontendDist": "../frontend/dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "cd ../frontend && npm run dev",
+    "beforeBuildCommand": "cd ../frontend && npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Parampara",
+        "width": 400,
+        "height": 800,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}
