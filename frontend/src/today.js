@@ -130,6 +130,17 @@ function renderTodayContent(app, today, panchang, festivals) {
     </div>
     ` : ''}
 
+    <!-- Compare with India -->
+    <div class="info-card">
+      <h3>Compare with India</h3>
+      <div id="compare-panel">
+        <button class="today-action-btn" onclick="window._loadCompare()" style="width:100%">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="8" r="3.5"/><circle cx="11" cy="8" r="3.5"/></svg>
+          Show Delhi panchang for today
+        </button>
+      </div>
+    </div>
+
     <!-- Coming This Week -->
     ${upcomingFestivals.length > 0 ? `
     <div class="info-card">
@@ -190,6 +201,63 @@ function addDays(dateStr, days) {
     String(d.getMonth() + 1).padStart(2, '0') + '-' +
     String(d.getDate()).padStart(2, '0');
 }
+
+// === Compare with India ===
+// ponytail: reuses existing compare_locations IPC, mock for non-Tauri
+window._loadCompare = async function() {
+  const panel = document.getElementById('compare-panel');
+  if (!panel) return;
+  panel.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+
+  try {
+    const app = window.app;
+    const today = app.today();
+    const mel = app.profile.location;
+
+    let melbournePanchang, delhiPanchang, explanation;
+
+    if (app.isTauri) {
+      const { invoke } = window.__TAURI__.core;
+      const result = await invoke('compare_locations', {
+        date: today,
+        lat1: mel.lat, lon1: mel.lon, tz1: mel.timezone, name1: 'Melbourne',
+        lat2: 28.6139, lon2: 77.2090, tz2: 'Asia/Kolkata', name2: 'Delhi',
+      });
+      melbournePanchang = result.location1.panchang;
+      delhiPanchang = result.location2.panchang;
+      explanation = result.explanation;
+    } else {
+      // Mock: same tithi most days, show slight time difference
+      melbournePanchang = mockPanchang(today);
+      delhiPanchang = { ...mockPanchang(today), sunrise: 6.15, sunset: 17.88 };
+      explanation = 'Both Melbourne and Delhi have the same tithi today.';
+    }
+
+    const diffTithi = melbournePanchang.tithi?.name !== delhiPanchang.tithi?.name;
+
+    panel.innerHTML = `
+      <div class="compare-panel">
+        <div class="compare-col">
+          <h4>Melbourne</h4>
+          <div class="info-row"><span class="info-label">Tithi</span><span class="info-value ${diffTithi ? 'compare-diff' : ''}">${melbournePanchang.tithi?.name || '-'}</span></div>
+          <div class="info-row"><span class="info-label">Nakshatra</span><span class="info-value">${melbournePanchang.nakshatra?.name || '-'}</span></div>
+          <div class="info-row"><span class="info-label">Sunrise</span><span class="info-value">${formatTime(melbournePanchang.sunrise)}</span></div>
+          <div class="info-row"><span class="info-label">Sunset</span><span class="info-value">${formatTime(melbournePanchang.sunset)}</span></div>
+        </div>
+        <div class="compare-col">
+          <h4>Delhi</h4>
+          <div class="info-row"><span class="info-label">Tithi</span><span class="info-value ${diffTithi ? 'compare-diff' : ''}">${delhiPanchang.tithi?.name || '-'}</span></div>
+          <div class="info-row"><span class="info-label">Nakshatra</span><span class="info-value">${delhiPanchang.nakshatra?.name || '-'}</span></div>
+          <div class="info-row"><span class="info-label">Sunrise</span><span class="info-value">${formatTime(delhiPanchang.sunrise)}</span></div>
+          <div class="info-row"><span class="info-label">Sunset</span><span class="info-value">${formatTime(delhiPanchang.sunset)}</span></div>
+        </div>
+        <div class="compare-note">${explanation}</div>
+      </div>
+    `;
+  } catch (e) {
+    panel.innerHTML = `<p style="color:var(--error);font-size:13px;">${e.message || 'Failed to load comparison'}</p>`;
+  }
+};
 
 // === Weekly Digest ===
 // ponytail: clipboard API, no libraries needed
