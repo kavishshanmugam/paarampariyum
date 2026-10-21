@@ -30,6 +30,7 @@ Built with Tauri 2 (Rust + web frontend). See `hindu_companion_app_research_prd.
 The `loop/` directory contains autonomous build coordination files.
 See `loop/START_HERE.md` for how to launch builder/reviewer agents.
 
-## GitHub
+## Git
 - Remote: https://github.com/kavishshanmugam/paarampariyum.git
 - Branch strategy: `main` for stable, feature branches for development
+- Do NOT include `Co-Authored-By` lines in commit messages
