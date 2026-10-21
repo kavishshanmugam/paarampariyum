@@ -1,32 +1,33 @@
 # State - Parampara
 
-**Last updated:** 2026-10-16
+**Last updated:** 2026-10-22
 
 ## Current Phase
-Phase 4 (Calendar UI) COMPLETE. Phase 5 (Content Pages + Event UI) COMPLETE.
-Tauri desktop app builds and runs.
+All P0 and P1 items COMPLETE. Ready for user testing.
 
 ## What Works
 - Panchang engine: tithi, nakshatra, yoga, karana, sunrise/sunset/moonrise
-- DST handling (AEST/AEDT) verified
-- Melbourne vs Delhi date comparison
-- 18 festival rules (Diwali x5, recurring, major festivals)
-- 26 tests passing
-- 18 content pages with full YAML frontmatter + Markdown
-- Event page renderer with section cards and collapsible details
-- Content-aware Guide ("Saathi") with keyword search against all pages
-- Clickable festival items in Today, Calendar, and Guide views
-- Calendar day detail popup with panchang + festivals
-- Settings modal (month system, tradition, large type)
-- Tauri desktop build: MSI and NSIS installers
+- Engine validated against Drik Panchang (Melbourne) -- all major festivals match
+- 3 engine bugs fixed: sunrise JD offset, lunar month mapping (+1), TimeWindow evaluation
+- DST handling verified, festival dedup, 30 tests passing
+- 18 festival rules with proper TimeWindow-aware matching
+- 18 content pages with YAML frontmatter + Markdown
+- Frontend: Today, Calendar, Guide, Event views (Vite + vanilla JS)
+- Auth screen with magic link login + admin bootstrap + guest mode
+- AI guide (Claude API via backend when authenticated, local keyword search fallback)
+- Family notes CRUD on event pages (create, edit, pin, delete)
+- Backend: Node.js + Express, SQLite, auth, guide API, traditions API
+- Compare with India panel (Melbourne vs Delhi side-by-side)
+- Calendar .ics export (monthly festival download)
+- Share panchang card (canvas PNG, Web Share API / download)
+- Weekly digest copy-to-clipboard
+- Tauri desktop build
 - Frontend builds standalone with Vite (mock data mode)
 
-## What's Next
-1. Backend server (Node.js): magic link auth, guide API proxy
-2. AI guide integration (Claude API with system prompt + content retrieval)
-3. Family traditions CRUD (text notes, voice, photos)
-4. Validate engine dates against Drik Panchang
-5. Compare with India panel
+## What's Next (P2)
+1. Voice notes for family traditions
+2. Photo attachments for family traditions
+3. Family book export (PDF/Markdown)
 
 ## Blockers
-None currently.
+None.
