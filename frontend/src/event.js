@@ -3,7 +3,10 @@
  *
  * Content is loaded from /content/pages/<id>.md files.
  * Parses YAML frontmatter + Markdown body and renders a rich detail view.
+ * Family notes CRUD when authenticated.
  */
+
+import { getNotes, createNote, updateNote, deleteNote, uploadNoteFile, getToken } from './api.js';
 
 // ponytail: no markdown lib -- regex-based renderer, add marked.js if formatting falls short
 function parseMarkdown(md) {
@@ -128,6 +131,8 @@ export async function renderEventPage(app, eventId, eventName) {
 
         ${sections.map(s => renderSection(s)).join('')}
 
+        <div id="family-notes-section"></div>
+
         <div class="event-footer">
           <button class="event-ask-btn" onclick="app.askGuideAbout('${escapeAttr(eventName || eventId)}')">
             Ask the Guide about this
@@ -136,6 +141,264 @@ export async function renderEventPage(app, eventId, eventName) {
       </div>
     </div>
   `;
+
+  // Load family notes asynchronously
+  loadFamilyNotes(eventId);
+}
+
+// Load and render family notes
+async function loadFamilyNotes(eventId) {
+  const container = document.getElementById('family-notes-section');
+  if (!container) return;
+
+  const hasAuth = getToken();
+
+  if (!hasAuth) {
+    // Show sign-in prompt
+    container.innerHTML = `
+      <div class="notes-section">
+        <h3>Family Traditions</h3>
+        <div class="info-card" style="text-align:center;">
+          <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px;">Sign in to add your family's traditions and notes for this observance.</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  try {
+    const notes = await getNotes(eventId);
+    renderFamilyNotes(container, eventId, notes);
+  } catch {
+    container.innerHTML = `
+      <div class="notes-section">
+        <h3>Family Traditions</h3>
+        <button class="note-add-btn" onclick="window._noteStartAdd('${eventId}')">+ Add a family tradition note</button>
+      </div>
+    `;
+  }
+}
+
+function renderFamilyNotes(container, eventId, notes) {
+  const pinnedNotes = notes.filter(n => n.pinned);
+  const otherNotes = notes.filter(n => !n.pinned);
+  const allNotes = [...pinnedNotes, ...otherNotes];
+
+  container.innerHTML = `
+    <div class="notes-section">
+      <h3>Family Traditions</h3>
+      ${allNotes.map(note => `
+        <div class="note-card ${note.pinned ? 'pinned' : ''}" data-note-id="${note.id}">
+          ${renderNoteContent(note)}
+          <div class="note-meta">
+            <span>${new Date(note.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+            <div class="note-actions">
+              <button class="note-action-btn" onclick="window._noteTogglePin('${eventId}', '${note.id}', ${note.pinned ? 0 : 1})">${note.pinned ? 'Unpin' : 'Pin'}</button>
+              ${note.note_type === 'text' ? `<button class="note-action-btn" onclick="window._noteStartEdit('${eventId}', '${note.id}')">Edit</button>` : ''}
+              <button class="note-action-btn" onclick="window._noteDelete('${eventId}', '${note.id}')">Delete</button>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+      <div id="note-add-area"></div>
+      <div class="note-add-row">
+        <button class="note-add-btn" onclick="window._noteStartAdd('${eventId}')">+ Text note</button>
+        <button class="note-add-btn" onclick="window._noteAddPhoto('${eventId}')">+ Photo</button>
+        <button class="note-add-btn" onclick="window._noteStartVoice('${eventId}')">+ Voice</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderNoteContent(note) {
+  if (note.note_type === 'photo') {
+    return `<div class="note-content"><img src="/api/uploads/${escapeHtml(note.content)}" class="note-photo" alt="Family photo" onclick="window._noteViewPhoto(this.src)"></div>`;
+  }
+  if (note.note_type === 'voice') {
+    return `<div class="note-content"><audio controls src="/api/uploads/${escapeHtml(note.content)}" class="note-audio"></audio></div>`;
+  }
+  return `<div class="note-content">${escapeHtml(note.content)}</div>`;
+}
+
+// Family notes interaction handlers
+if (typeof window !== 'undefined') {
+  window._noteStartAdd = function(eventId) {
+    const area = document.getElementById('note-add-area');
+    if (!area) return;
+    area.innerHTML = `
+      <div class="note-card">
+        <textarea class="note-edit-area" id="new-note-text" placeholder="Write about your family's tradition for this observance..."></textarea>
+        <div class="note-save-row">
+          <button class="note-cancel-btn" onclick="document.getElementById('note-add-area').innerHTML=''">Cancel</button>
+          <button class="note-save-btn" onclick="window._noteSave('${eventId}')">Save</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('new-note-text')?.focus();
+  };
+
+  window._noteSave = async function(eventId) {
+    const text = document.getElementById('new-note-text')?.value.trim();
+    if (!text) return;
+    try {
+      await createNote(eventId, text);
+      await loadFamilyNotes(eventId);
+    } catch (err) {
+      alert('Could not save note: ' + err.message);
+    }
+  };
+
+  window._noteStartEdit = function(eventId, noteId) {
+    const card = document.querySelector(`[data-note-id="${noteId}"]`);
+    if (!card) return;
+    const currentText = card.querySelector('.note-content').textContent;
+    card.innerHTML = `
+      <textarea class="note-edit-area" id="edit-note-text">${escapeHtml(currentText)}</textarea>
+      <div class="note-save-row">
+        <button class="note-cancel-btn" onclick="window._noteReloadNotes('${eventId}')">Cancel</button>
+        <button class="note-save-btn" onclick="window._noteUpdate('${eventId}', '${noteId}')">Save</button>
+      </div>
+    `;
+    document.getElementById('edit-note-text')?.focus();
+  };
+
+  window._noteUpdate = async function(eventId, noteId) {
+    const text = document.getElementById('edit-note-text')?.value.trim();
+    if (!text) return;
+    try {
+      await updateNote(noteId, { content: text });
+      await loadFamilyNotes(eventId);
+    } catch (err) {
+      alert('Could not update note: ' + err.message);
+    }
+  };
+
+  window._noteTogglePin = async function(eventId, noteId, pinned) {
+    try {
+      await updateNote(noteId, { pinned: !!pinned });
+      await loadFamilyNotes(eventId);
+    } catch (err) {
+      alert('Could not update note: ' + err.message);
+    }
+  };
+
+  window._noteDelete = async function(eventId, noteId) {
+    if (!confirm('Delete this note?')) return;
+    try {
+      await deleteNote(noteId);
+      await loadFamilyNotes(eventId);
+    } catch (err) {
+      alert('Could not delete note: ' + err.message);
+    }
+  };
+
+  window._noteReloadNotes = async function(eventId) {
+    await loadFamilyNotes(eventId);
+  };
+
+  // Photo upload via hidden file input
+  window._noteAddPhoto = function(eventId) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async () => {
+      if (!input.files[0]) return;
+      try {
+        await uploadNoteFile(eventId, input.files[0], 'photo');
+        await loadFamilyNotes(eventId);
+      } catch (err) {
+        alert('Could not upload photo: ' + err.message);
+      }
+    };
+    input.click();
+  };
+
+  // Voice recording via MediaRecorder
+  let _voiceRecorder = null;
+  let _voiceChunks = [];
+
+  window._noteStartVoice = function(eventId) {
+    const area = document.getElementById('note-add-area');
+    if (!area) return;
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      alert('Voice recording is not supported in this browser.');
+      return;
+    }
+
+    area.innerHTML = `
+      <div class="note-card">
+        <div class="voice-record-ui">
+          <div class="voice-status" id="voice-status">Press Record to start</div>
+          <div class="note-save-row">
+            <button class="note-cancel-btn" onclick="window._noteVoiceCancel()">Cancel</button>
+            <button class="note-save-btn" id="voice-record-btn" onclick="window._noteVoiceToggle('${eventId}')">Record</button>
+          </div>
+        </div>
+      </div>
+    `;
+  };
+
+  window._noteVoiceToggle = async function(eventId) {
+    const btn = document.getElementById('voice-record-btn');
+    const status = document.getElementById('voice-status');
+
+    if (_voiceRecorder && _voiceRecorder.state === 'recording') {
+      // Stop recording
+      _voiceRecorder.stop();
+      btn.textContent = 'Saving...';
+      btn.disabled = true;
+      return;
+    }
+
+    // Start recording
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      _voiceChunks = [];
+      _voiceRecorder = new MediaRecorder(stream);
+
+      _voiceRecorder.ondataavailable = (e) => { if (e.data.size > 0) _voiceChunks.push(e.data); };
+      _voiceRecorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        const blob = new Blob(_voiceChunks, { type: _voiceRecorder.mimeType || 'audio/webm' });
+        const ext = (_voiceRecorder.mimeType || '').includes('mp4') ? '.m4a' : '.webm';
+        const file = new File([blob], `voice${ext}`, { type: blob.type });
+        try {
+          await uploadNoteFile(eventId, file, 'voice');
+          await loadFamilyNotes(eventId);
+        } catch (err) {
+          alert('Could not save voice note: ' + err.message);
+        }
+        _voiceRecorder = null;
+      };
+
+      _voiceRecorder.start();
+      btn.textContent = 'Stop';
+      btn.style.background = 'var(--error)';
+      status.textContent = 'Recording...';
+    } catch (err) {
+      alert('Microphone access denied: ' + err.message);
+    }
+  };
+
+  window._noteVoiceCancel = function() {
+    if (_voiceRecorder && _voiceRecorder.state === 'recording') {
+      _voiceRecorder.stream?.getTracks().forEach(t => t.stop());
+      _voiceRecorder.stop();
+      _voiceRecorder = null;
+    }
+    const area = document.getElementById('note-add-area');
+    if (area) area.innerHTML = '';
+  };
+
+  // Photo lightbox
+  window._noteViewPhoto = function(src) {
+    const overlay = document.createElement('div');
+    overlay.className = 'photo-lightbox';
+    overlay.innerHTML = `<img src="${src}" onclick="event.stopPropagation()"><button onclick="this.parentElement.remove()" class="photo-lightbox-close">&times;</button>`;
+    overlay.onclick = () => overlay.remove();
+    document.body.appendChild(overlay);
+  };
 }
 
 function parseSections(body) {

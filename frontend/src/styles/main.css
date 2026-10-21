@@ -1051,6 +1051,74 @@ body {
   color: var(--text-secondary);
 }
 
+/* Note add row (text/photo/voice buttons) */
+.note-add-row {
+  display: flex;
+  gap: 6px;
+}
+
+.note-add-row .note-add-btn {
+  flex: 1;
+  font-size: 12px;
+  padding: 8px;
+}
+
+/* Photo notes */
+.note-photo {
+  max-width: 100%;
+  border-radius: 6px;
+  cursor: pointer;
+  max-height: 200px;
+  object-fit: cover;
+}
+
+/* Voice notes */
+.note-audio {
+  width: 100%;
+  height: 36px;
+}
+
+.voice-record-ui {
+  text-align: center;
+  padding: 8px 0;
+}
+
+.voice-status {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+/* Photo lightbox */
+.photo-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.photo-lightbox img {
+  max-width: 90vw;
+  max-height: 85vh;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.photo-lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+}
+
 /* User badge in top bar */
 .user-badge {
   display: flex;

@@ -36,5 +36,11 @@ WORKLOG.md
 src-tauri/target/
 src-tauri/gen/
 
+# Backend database
+backend/*.db
+backend/*.db-shm
+backend/*.db-wal
+backend/uploads/
+
 # Test artifacts
 *.log
