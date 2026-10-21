@@ -149,6 +149,13 @@ function renderCalendarContent(app, panchangByDate, festivalsByDate, startDate, 
       <button class="calendar-nav-btn cal-next">&rarr;</button>
     </div>
 
+    <div style="text-align: center; margin-bottom: 12px;">
+      <button class="cal-export-btn" onclick="window._exportICS()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3M2 12v2h12v-2"/></svg>
+        Export .ics
+      </button>
+    </div>
+
     <div class="calendar-weekdays">
       ${weekdays.map(w => `<div class="calendar-weekday">${w}</div>`).join('')}
     </div>
@@ -285,6 +292,77 @@ function mockFestivals(year, month) {
 
   return festivals;
 }
+
+// === ICS Export ===
+// ponytail: plain string concat, no ical library
+window._exportICS = async function() {
+  try {
+    const app = window.app;
+    const year = currentYear;
+    const month = currentMonth;
+    const start = `${year}-${String(month + 1).padStart(2,'0')}-01`;
+    const lastDay = new Date(year, month + 1, 0);
+    const end = formatDateStr(lastDay);
+
+    let festivals;
+    if (app.isTauri) {
+      festivals = await app.getFestivals(start, end);
+    } else {
+      festivals = mockFestivals(year, month);
+    }
+
+    // Dedup
+    const seen = new Set();
+    const unique = festivals.filter(f => {
+      const key = f.rule_id + '-' + f.date;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    const now = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+    let ics = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Parampara//Hindu Calendar//EN',
+      'CALSCALE:GREGORIAN',
+      'X-WR-CALNAME:Parampara',
+    ];
+
+    for (const f of unique) {
+      const dateClean = f.date.replace(/-/g, '');
+      // All-day event: DTSTART is date, DTEND is next day
+      const d = new Date(f.date + 'T00:00:00');
+      d.setDate(d.getDate() + 1);
+      const endDate = d.getFullYear().toString() +
+        String(d.getMonth() + 1).padStart(2, '0') +
+        String(d.getDate()).padStart(2, '0');
+
+      ics.push(
+        'BEGIN:VEVENT',
+        `UID:${f.rule_id}-${f.date}@parampara`,
+        `DTSTAMP:${now}`,
+        `DTSTART;VALUE=DATE:${dateClean}`,
+        `DTEND;VALUE=DATE:${endDate}`,
+        `SUMMARY:${f.name}`,
+        `DESCRIPTION:${(f.reason || '').replace(/\n/g, '\\n')}`,
+        'END:VEVENT',
+      );
+    }
+
+    ics.push('END:VCALENDAR');
+    const blob = new Blob([ics.join('\r\n')], { type: 'text/calendar' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const monthNames = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+    a.download = `parampara-${monthNames[month]}-${year}.ics`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    console.error('Failed to export ICS:', e);
+  }
+};
 
 function mockPanchangRange(start, end) {
   const result = [];
