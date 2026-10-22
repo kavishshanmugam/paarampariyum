@@ -14,6 +14,6 @@
 - [x] **P1** Weekly digest copy-to-clipboard feature
 - [x] **P1** Large-type accessibility setting (already built)
 - [x] **P1** Rebuild Tauri desktop app with all fixes
-- [ ] **P2** Voice notes for family traditions
-- [ ] **P2** Photo attachments for family traditions
-- [ ] **P2** Family book export (PDF/Markdown)
+- [x] **P2** Voice notes for family traditions
+- [x] **P2** Photo attachments for family traditions
+- [x] **P2** Family book export (Markdown)

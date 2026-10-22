@@ -3,7 +3,7 @@
 **Last updated:** 2026-10-22
 
 ## Current Phase
-All P0 and P1 items COMPLETE. Ready for user testing.
+All P0, P1, and P2 items COMPLETE. App is feature-complete for v1.0.
 
 ## What Works
 - Panchang engine: tithi, nakshatra, yoga, karana, sunrise/sunset/moonrise
@@ -15,19 +15,20 @@ All P0 and P1 items COMPLETE. Ready for user testing.
 - Frontend: Today, Calendar, Guide, Event views (Vite + vanilla JS)
 - Auth screen with magic link login + admin bootstrap + guest mode
 - AI guide (Claude API via backend when authenticated, local keyword search fallback)
-- Family notes CRUD on event pages (create, edit, pin, delete)
-- Backend: Node.js + Express, SQLite, auth, guide API, traditions API
+- Family notes CRUD on event pages (text, photo, voice)
+- Backend: Node.js + Express, SQLite, auth, guide API, traditions API, file uploads
 - Compare with India panel (Melbourne vs Delhi side-by-side)
 - Calendar .ics export (monthly festival download)
 - Share panchang card (canvas PNG, Web Share API / download)
 - Weekly digest copy-to-clipboard
-- Tauri desktop build
+- Voice notes (MediaRecorder, webm upload)
+- Photo attachments (file upload, lightbox viewer)
+- Family book export (Markdown download)
+- Tauri desktop build: MSI 3.83 MB, NSIS 2.55 MB
 - Frontend builds standalone with Vite (mock data mode)
 
-## What's Next (P2)
-1. Voice notes for family traditions
-2. Photo attachments for family traditions
-3. Family book export (PDF/Markdown)
+## What's Next
+User testing. All planned features implemented.
 
 ## Blockers
 None.
