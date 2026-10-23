@@ -7,24 +7,30 @@
  * - Never speaks as a deity
  * - States uncertainty plainly
  * - Flag button for unanswered questions
+ *
+ * When authenticated with backend: uses Claude API via /api/guide/chat
+ * When offline/guest: falls back to client-side keyword search
  */
 
-const messages = [];
+import { sendGuideMessage, flagQuestion, getToken } from './api.js';
 
-// ponytail: content index built at first guide render, no backend needed yet
+const messages = [];
+let conversationId = null;
+
+// Client-side content index for offline fallback
 let contentIndex = null;
 
 async function buildContentIndex() {
   if (contentIndex) return contentIndex;
   contentIndex = {};
 
-  // Known page IDs matching festival rules + content pages
   const pageIds = [
-    'diwali-lakshmi-puja', 'dhanteras', 'naraka-chaturdashi', 'govardhan-puja',
-    'bhai-dooj', 'ekadashi', 'pradosh-vrat', 'sankashti-chaturthi',
-    'purnima', 'amavasya', 'maha-shivaratri', 'holi', 'ram-navami',
-    'vasant-panchami', 'makar-sankranti', 'ganesh-chaturthi',
-    'chhath-puja', 'dev-uthani-ekadashi',
+    'naraka-chaturdashi', 'diwali-lakshmi-puja',
+    'ekadashi', 'pradosh-vrat', 'sankashti-chaturthi', 'purnima', 'amavasya',
+    'maha-shivaratri', 'ram-navami', 'ganesh-chaturthi',
+    'pongal', 'onam', 'ugadi', 'navaratri-golu', 'karthigai-deepam',
+    'thaipusam', 'skanda-shashthi', 'varalakshmi-vratam',
+    'aadi-perukku', 'ayyappa-mandalam',
   ];
 
   await Promise.all(pageIds.map(async (id) => {
@@ -52,7 +58,6 @@ function parseContentPage(md) {
     }
   }
 
-  // Extract sections
   const sections = {};
   let currentSection = '';
   for (const line of body.split('\n')) {
@@ -68,8 +73,6 @@ function findRelevantContent(question) {
   if (!contentIndex) return [];
   const q = question.toLowerCase();
   const results = [];
-
-  // Keyword matching against page content
   const keywords = q.split(/\s+/).filter(w => w.length > 3);
 
   for (const [id, page] of Object.entries(contentIndex)) {
@@ -77,16 +80,11 @@ function findRelevantContent(question) {
     const name = (page.meta.en || id).toLowerCase();
     const bodyLower = page.body.toLowerCase();
 
-    // Direct name match is highest priority
     if (q.includes(name) || q.includes(id.replace(/-/g, ' '))) score += 100;
-
-    // Check for keyword hits in body
     for (const kw of keywords) {
       if (bodyLower.includes(kw)) score += 5;
       if (name.includes(kw)) score += 20;
     }
-
-    // Specific topic matching
     if (q.includes('fast') && (bodyLower.includes('fast') || bodyLower.includes('vrat'))) score += 30;
     if (q.includes('puja') && bodyLower.includes('puja')) score += 30;
     if (q.includes('story') && page.sections['The story']) score += 40;
@@ -106,7 +104,7 @@ function formatContentResponse(question, matches) {
     <br><br>
     The Hindu tradition has many perspectives on this topic, and I want to make sure I represent them fairly. Would you like me to flag this question for our editors to prepare a proper answer?
     <br><br>
-    <button class="suggestion-btn" onclick="alert('Question flagged for review. Thank you!')">Flag for review</button>`;
+    <button class="suggestion-btn" onclick="window._guideFlagQuestion(${JSON.stringify(question).replace(/"/g, '&quot;')})">Flag for review</button>`;
   }
 
   const q = question.toLowerCase();
@@ -116,14 +114,12 @@ function formatContentResponse(question, matches) {
 
   let response = '';
 
-  // Determine which section to surface based on question type
   if (q.includes('story') || q.includes('behind') || q.includes('about') || q.includes('what is') || q.includes('tell me')) {
     const story = page.sections['The story'] || '';
     const summary = page.sections['In two sentences'] || '';
     response = `<b>${escapeHtml(name)}</b><br><br>`;
     if (summary.trim()) response += summary.trim().replace(/\n/g, '<br>') + '<br><br>';
     if (story.trim()) {
-      // Get just the short version if it exists
       const shortMatch = story.match(/\*\*Short version\.\*\*\s*(.+?)(?=\n\n|\*\*Full|$)/s);
       if (shortMatch) {
         response += shortMatch[1].trim().replace(/\n/g, '<br>') + '<br><br>';
@@ -136,12 +132,9 @@ function formatContentResponse(question, matches) {
     const whatToDo = page.sections['What to do'] || '';
     response = `<b>How to observe ${escapeHtml(name)}:</b><br><br>`;
     if (whatToDo.trim()) {
-      // Extract the ten-minute version
       const tenMinMatch = whatToDo.match(/### Ten-minute version\n([\s\S]*?)(?=###|$)/);
       if (tenMinMatch) {
-        response += tenMinMatch[1].trim()
-          .replace(/^\d+\.\s+/gm, (m) => '<br>' + m)
-          .replace(/\n/g, '<br>');
+        response += tenMinMatch[1].trim().replace(/^\d+\.\s+/gm, (m) => '<br>' + m).replace(/\n/g, '<br>');
       } else {
         response += whatToDo.trim().split('\n\n').slice(0, 3).join('<br><br>').replace(/\n/g, '<br>');
       }
@@ -161,20 +154,17 @@ function formatContentResponse(question, matches) {
     if (melbourne.trim()) response += '<b>In Melbourne:</b> ' + melbourne.trim().replace(/\n/g, '<br>') + '<br><br>';
     response += `<em>For the exact date in Melbourne, check the Calendar tab -- the engine computes it from the moon's position at your location.</em>`;
   } else {
-    // General question -- give the summary and link to page
     const summary = page.sections['In two sentences'] || '';
     response = `<b>${escapeHtml(name)}</b><br><br>`;
     if (summary.trim()) response += summary.trim().replace(/\n/g, '<br>') + '<br><br>';
     response += `<button class="suggestion-btn" onclick="app.openEventPage('${best.id}', '${name.replace(/'/g, "\\'")}')">Read more</button>`;
   }
 
-  // Source line
   const sources = page.body.match(/\*Sources?:\s*(.+?)\*/);
   if (sources) {
     response += `<br><br><span style="font-size: 12px; color: var(--text-muted);">Source: ${escapeHtml(sources[1])}</span>`;
   }
 
-  // If there are other relevant matches, suggest them
   if (matches.length > 1) {
     const others = matches.slice(1).map(m => {
       const n = m.page.meta.en || m.id;
@@ -186,12 +176,23 @@ function formatContentResponse(question, matches) {
   return response;
 }
 
+/**
+ * Format the AI response with basic markdown rendering.
+ * Handles **bold**, links to event pages, and line breaks.
+ */
+function formatAiResponse(text) {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+}
+
 export function renderGuide(app) {
   const container = document.getElementById('view-guide');
 
   // Only render if empty (preserve chat history)
   if (container.querySelector('.guide-header')) {
-    // Handle preloaded question from event page
     if (app._guidePreload) {
       const q = app._guidePreload;
       app._guidePreload = null;
@@ -200,16 +201,18 @@ export function renderGuide(app) {
     return;
   }
 
+  const useAi = app.backendAvailable && getToken();
+
   container.innerHTML = `
     <div class="guide-header">
       <div class="guide-title">Saathi</div>
-      <div class="guide-subtitle">Your companion for understanding Hindu traditions</div>
+      <div class="guide-subtitle">${useAi ? 'AI-powered companion for Hindu traditions' : 'Your companion for understanding Hindu traditions'}</div>
     </div>
 
     <div class="chat-messages" id="chat-messages">
       ${messages.length === 0 ? `
         <div class="chat-message guide">
-          Namaste! I'm Saathi, your guide to Hindu traditions, festivals, and practices.
+          Vanakkam! I'm Saathi, your guide to Hindu traditions, festivals, and practices.
           I can help with questions about observances, their stories, what to do at home,
           and why traditions exist. I'll always tell you where my answer comes from,
           and I'll be honest when I'm not sure.
@@ -218,20 +221,20 @@ export function renderGuide(app) {
         </div>
 
         <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
-          <button class="suggestion-btn" onclick="app.askGuide('When is the next Ekadashi in Melbourne?')">
-            When is the next Ekadashi?
+          <button class="suggestion-btn" onclick="app.askGuide('What is the story behind Deepavali?')">
+            Story behind Deepavali
           </button>
-          <button class="suggestion-btn" onclick="app.askGuide('What is the story behind Diwali?')">
-            Story behind Diwali
+          <button class="suggestion-btn" onclick="app.askGuide('How do we celebrate Pongal?')">
+            How to celebrate Pongal
           </button>
-          <button class="suggestion-btn" onclick="app.askGuide('How do I do a simple Lakshmi Puja at home?')">
-            Simple Lakshmi Puja
+          <button class="suggestion-btn" onclick="app.askGuide('Tell me about Thaipusam and Murugan')">
+            About Thaipusam
           </button>
-          <button class="suggestion-btn" onclick="app.askGuide('Why do we fast on Ekadashi?')">
-            Why fast on Ekadashi?
+          <button class="suggestion-btn" onclick="app.askGuide('What is the Navaratri Golu tradition?')">
+            Navaratri Golu
           </button>
-          <button class="suggestion-btn" onclick="app.askGuide('Tell me about Maha Shivaratri')">
-            About Shivaratri
+          <button class="suggestion-btn" onclick="app.askGuide('Tell me about Karthigai Deepam')">
+            Karthigai Deepam
           </button>
         </div>
       ` : messages.map(m => `
@@ -240,13 +243,9 @@ export function renderGuide(app) {
     </div>
   `;
 
-  // Ensure chat input exists
   ensureChatInput(app);
-
-  // Build content index in background
   buildContentIndex();
 
-  // Handle preloaded question
   if (app._guidePreload) {
     const q = app._guidePreload;
     app._guidePreload = null;
@@ -305,13 +304,23 @@ if (typeof window !== 'undefined') {
         </div>`;
         chatEl.scrollTop = chatEl.scrollHeight;
 
-        try {
-          await buildContentIndex();
-          // Small delay for UX
-          await new Promise(r => setTimeout(r, 300));
+        const useAi = this.backendAvailable && getToken();
 
-          const matches = findRelevantContent(text);
-          const response = formatContentResponse(text, matches);
+        try {
+          let response;
+
+          if (useAi) {
+            // Use backend AI
+            const result = await sendGuideMessage(text, conversationId);
+            conversationId = result.conversationId;
+            response = formatAiResponse(result.reply);
+          } else {
+            // Fallback: client-side search
+            await buildContentIndex();
+            await new Promise(r => setTimeout(r, 300));
+            const matches = findRelevantContent(text);
+            response = formatContentResponse(text, matches);
+          }
 
           document.getElementById('guide-typing')?.remove();
           messages.push({ role: 'guide', content: response });
@@ -319,9 +328,38 @@ if (typeof window !== 'undefined') {
           chatEl.scrollTop = chatEl.scrollHeight;
         } catch (err) {
           document.getElementById('guide-typing')?.remove();
+
+          // If AI fails, try fallback
+          if (useAi) {
+            try {
+              await buildContentIndex();
+              const matches = findRelevantContent(text);
+              const fallback = formatContentResponse(text, matches);
+              const response = `<span style="font-size:12px;color:var(--text-muted);">AI unavailable, showing local results:</span><br><br>` + fallback;
+              messages.push({ role: 'guide', content: response });
+              chatEl.innerHTML += `<div class="chat-message guide">${response}</div>`;
+              chatEl.scrollTop = chatEl.scrollHeight;
+              return;
+            } catch { /* fall through */ }
+          }
+
           chatEl.innerHTML += `<div class="chat-message guide" style="color: var(--error);">
             Sorry, I couldn't process that question. Please try again.
           </div>`;
+        }
+      };
+
+      // Flag question handler
+      window._guideFlagQuestion = async function(question) {
+        if (getToken()) {
+          try {
+            await flagQuestion(question);
+            alert('Question flagged for review. Thank you!');
+          } catch {
+            alert('Could not flag question. Please try again.');
+          }
+        } else {
+          alert('Question flagged for review. Thank you!');
         }
       };
     }

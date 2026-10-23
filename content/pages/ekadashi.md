@@ -2,7 +2,10 @@
 id: ekadashi
 names:
   en: "Ekadashi"
-  hi: "एकादशी"
+  ta: "ஏகாதசி"
+  te: "ఏకాదశి"
+  kn: "ಏಕಾದಶಿ"
+  ml: "ഏകാദശി"
 type: recurring_fortnightly
 rule:
   basis: lunar

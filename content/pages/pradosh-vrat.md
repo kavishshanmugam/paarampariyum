@@ -1,8 +1,11 @@
 ---
 id: pradosh-vrat
 names:
-  en: "Pradosh Vrat"
-  hi: "प्रदोष व्रत"
+  en: "Pradosham"
+  ta: "பிரதோஷம்"
+  te: "ప్రదోషం"
+  kn: "ಪ್ರದೋಷ"
+  ml: "പ്രദോഷം"
 type: recurring_fortnightly
 rule:
   basis: lunar

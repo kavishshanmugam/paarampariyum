@@ -2,7 +2,10 @@
 id: purnima
 names:
   en: "Purnima (Full Moon)"
-  hi: "पूर्णिमा"
+  ta: "பௌர்ணமி"
+  te: "పౌర్ణమి"
+  kn: "ಹುಣ್ಣಿಮೆ"
+  ml: "പൗർണമി"
 type: recurring_monthly
 rule:
   basis: lunar

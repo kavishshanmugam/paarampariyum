@@ -29,8 +29,11 @@ pub fn get_panchang(date: chrono::NaiveDate, location: &Location, conventions: &
     let sunset = calculate_sunset(jd, location.lat, location.lon, tz_offset);
     let moonrise = calculate_moonrise(jd, location.lat, location.lon, tz_offset);
 
-    // Tithi at sunrise (governs the day in most traditions)
-    let sunrise_jd = sunrise.map(|s| jd + s / 24.0).unwrap_or(jd + 6.0 / 24.0);
+    // Tithi at sunrise (governs the day in most traditions).
+    // Sunrise is in local hours; convert to UT by subtracting timezone offset.
+    let sunrise_jd = sunrise
+        .map(|s| jd + (s - tz_offset) / 24.0)
+        .unwrap_or(jd + (6.0 - tz_offset) / 24.0);
     let tithi_info = compute_tithi(sunrise_jd);
     let nakshatra_info = compute_nakshatra(sunrise_jd);
     let yoga_info = compute_yoga(sunrise_jd);

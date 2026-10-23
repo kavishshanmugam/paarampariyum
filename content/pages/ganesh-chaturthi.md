@@ -1,8 +1,11 @@
 ---
 id: ganesh-chaturthi
 names:
-  en: "Ganesh Chaturthi"
-  hi: "गणेश चतुर्थी"
+  en: "Vinayagar Chaturthi"
+  ta: "விநாயகர் சதுர்த்தி"
+  te: "వినాయక చవితి"
+  kn: "ಗಣೇಶ ಚತುರ್ಥಿ"
+  ml: "ഗണേശ ചതുർത്ഥി"
 type: major_festival
 rule:
   basis: lunar
@@ -17,11 +20,11 @@ review:
   last_reviewed: "2026-10-16"
 ---
 
-# Ganesh Chaturthi
+# Vinayagar Chaturthi
 
 ## In two sentences
 
-The fourth day of the bright fortnight in Bhadrapada, celebrated as the birthday of Ganesha -- the elephant-headed son of Shiva and Parvati, remover of obstacles, lord of beginnings. A clay murti is installed, worshipped for 1.5, 5, 7, or 10 days, then immersed (Visarjan) in water, completing the cycle.
+The fourth day of the bright fortnight in Bhadrapada, celebrated as the birthday of Vinayagar (Ganesha/Pillaiyar) -- the elephant-headed son of Shiva and Parvati, remover of obstacles, lord of beginnings. A clay murti is installed, worshipped for 1.5, 5, 7, or 10 days, then immersed in water, completing the cycle.
 
 ## In Melbourne
 

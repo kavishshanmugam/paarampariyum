@@ -1,13 +1,16 @@
 ---
 id: naraka-chaturdashi
 names:
-  en: "Naraka Chaturdashi (Choti Diwali)"
-  hi: "नरक चतुर्दशी (छोटी दीवाली)"
+  en: "Deepavali (Naraka Chaturdashi)"
+  ta: "தீபாவளி (நரக சதுர்த்தசி)"
+  te: "దీపావళి (నరక చతుర్దశి)"
+  kn: "ದೀಪಾವಳಿ (ನರಕ ಚತುರ್ದಶಿ)"
+  ml: "ദീപാവലി (നരക ചതുർദശി)"
 type: major_festival
 sequence:
-  group: diwali
-  day: 2
-  of: 5
+  group: deepavali
+  day: 1
+  of: 2
 rule:
   basis: lunar
   month_amanta: Ashvina
@@ -21,11 +24,11 @@ review:
   last_reviewed: "2026-10-16"
 ---
 
-# Naraka Chaturdashi (Choti Diwali)
+# Deepavali (Naraka Chaturdashi)
 
 ## In two sentences
 
-The fourteenth day of the waning fortnight of Ashvina, when Krishna's victory over the demon Narakasura is celebrated with an oil bath before dawn — the main Deepavali event across much of South India. In North India it is called Choti Diwali and marked with lighting of lamps, the day before the great Lakshmi Puja.
+The main day of Deepavali in Tamil, Telugu, Kannada, and Kerala tradition -- Krishna's victory over the demon Narakasura is celebrated with a sesame oil bath before dawn, new clothes, sweets, and lamps. This pre-dawn oil bath is the defining ritual; the day is a morning celebration, unlike the North Indian Diwali which centres on evening Lakshmi Puja.
 
 ## In Melbourne
 

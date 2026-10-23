@@ -2,7 +2,10 @@
 id: maha-shivaratri
 names:
   en: "Maha Shivaratri"
-  hi: "महाशिवरात्रि"
+  ta: "மகா சிவராத்திரி"
+  te: "మహా శివరాత్రి"
+  kn: "ಮಹಾ ಶಿವರಾತ್ರಿ"
+  ml: "മഹാ ശിവരാത്രി"
 type: major_festival
 rule:
   basis: lunar

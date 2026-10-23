@@ -277,16 +277,25 @@ function mockFestivals(year, month) {
   // Amavasya
   festivals.push({ rule_id: 'amavasya', name: 'Amavasya', date: `${year}-${String(m).padStart(2,'0')}-28`, festival_type: 'RecurringMonthly', reason: 'New moon' });
 
-  // November 2026 Diwali cluster
-  if (year === 2026 && month === 10) { // November (0-indexed)
+  // November 2026 Deepavali + Karthigai
+  if (year === 2026 && month === 10) {
     festivals.push(
-      { rule_id: 'dhanteras', name: 'Dhanteras', date: '2026-11-06', festival_type: 'MajorFestival', reason: 'Diwali Day 1' },
-      { rule_id: 'naraka-chaturdashi', name: 'Naraka Chaturdashi', date: '2026-11-07', festival_type: 'MajorFestival', reason: 'Diwali Day 2' },
-      { rule_id: 'diwali-lakshmi-puja', name: 'Diwali (Lakshmi Puja)', date: '2026-11-08', festival_type: 'MajorFestival', reason: 'Diwali Day 3 -- the main night' },
-      { rule_id: 'govardhan-puja', name: 'Govardhan Puja', date: '2026-11-09', festival_type: 'MajorFestival', reason: 'Diwali Day 4' },
-      { rule_id: 'bhai-dooj', name: 'Bhai Dooj', date: '2026-11-10', festival_type: 'MajorFestival', reason: 'Diwali Day 5' },
-      { rule_id: 'chhath-puja', name: 'Chhath Puja', date: '2026-11-14', festival_type: 'MajorFestival', reason: 'Sun worship' },
-      { rule_id: 'dev-uthani-ekadashi', name: 'Dev Uthani Ekadashi', date: '2026-11-19', festival_type: 'MajorFestival', reason: 'Vishnu awakens' },
+      { rule_id: 'naraka-chaturdashi', name: 'Deepavali', date: '2026-11-07', festival_type: 'MajorFestival', reason: 'Chaturdashi of Krishna Paksha -- oil bath before dawn' },
+      { rule_id: 'diwali-lakshmi-puja', name: 'Deepavali Lakshmi Puja', date: '2026-11-08', festival_type: 'MajorFestival', reason: 'Amavasya -- Lakshmi Puja with lamps' },
+      { rule_id: 'ayyappa-mandalam', name: 'Mandala Kalam begins', date: '2026-11-16', festival_type: 'Regional', reason: 'Sun enters Scorpio -- Ayyappa Mandala Kalam' },
+      { rule_id: 'karthigai-deepam', name: 'Karthigai Deepam', date: '2026-11-22', festival_type: 'MajorFestival', reason: 'Kartika Purnima -- Tamil festival of lamps' },
+    );
+  }
+  // January 2027 Pongal
+  if (year === 2027 && month === 0) {
+    festivals.push(
+      { rule_id: 'pongal', name: 'Pongal', date: '2027-01-14', festival_type: 'SolarTransit', reason: 'Sun enters Capricorn -- Thai Pongal' },
+    );
+  }
+  // August Aadi Perukku
+  if (month === 7) {
+    festivals.push(
+      { rule_id: 'aadi-perukku', name: 'Aadi Perukku', date: `${year}-08-03`, festival_type: 'Regional', reason: '18th of Aadi -- river festival' },
     );
   }
 

@@ -1,13 +1,16 @@
 ---
 id: diwali-lakshmi-puja
 names:
-  en: "Diwali (Lakshmi Puja)"
-  hi: "दीपावली (लक्ष्मी पूजा)"
+  en: "Deepavali Lakshmi Puja"
+  ta: "தீபாவளி லக்ஷ்மி பூஜை"
+  te: "దీపావళి లక్ష్మీ పూజ"
+  kn: "ದೀಪಾವಳಿ ಲಕ್ಷ್ಮಿ ಪೂಜೆ"
+  ml: "ദീപാവലി ലക്ഷ്മി പൂജ"
 type: major_festival
 sequence:
-  group: diwali
-  day: 3
-  of: 5
+  group: deepavali
+  day: 2
+  of: 2
 rule:
   basis: lunar
   month_amanta: Ashvina
@@ -24,11 +27,11 @@ review:
   last_reviewed: "2026-10-16"
 ---
 
-# Diwali (Lakshmi Puja)
+# Deepavali Lakshmi Puja
 
 ## In two sentences
 
-The night of the new moon in Kartika, when homes are lit with rows of lamps and Lakshmi, goddess of prosperity, is welcomed. It is the third and central day of a five-day festival.
+The new moon night of Kartika, when Lakshmi is welcomed with rows of lamps. In South India, the main Deepavali is the previous morning (Naraka Chaturdashi with the oil bath); this Lakshmi Puja evening is the North Indian centrepiece but is observed across traditions.
 
 ## In Melbourne
 
@@ -36,7 +39,7 @@ The engine computes this for Melbourne's coordinates and AEDT timezone. In India
 
 ## The story
 
-**Short version.** In much of North India, the lamps recall the people of Ayodhya lighting the way for Rama's return after fourteen years of exile. Lakshmi, goddess of wealth and wellbeing, is welcomed into homes that are clean, lit, and open.
+**Short version.** In South India, the main Deepavali is the morning before (Naraka Chaturdashi) with the oil bath. This Amavasya evening is when Lakshmi, goddess of wealth and wellbeing, is welcomed with lamps into homes that are clean, lit, and open. In North India, the lamps also recall Rama's return to Ayodhya.
 
 **Full version.** The Ramayana tells that when Rama, Sita and Lakshmana returned to Ayodhya after defeating Ravana in Lanka, the citizens lit rows of earthen lamps to guide them home. The tradition of lighting diyas on Amavasya is also linked to Lakshmi's emergence during the churning of the cosmic ocean (Samudra Manthan), described in the Vishnu Purana and Bhagavata Purana. In Bengal, the night is dedicated to Kali, the fierce form of the Goddess who destroys darkness. In much of South India, the main Deepavali celebration is the previous morning (Naraka Chaturdashi), marking Krishna's victory over the demon Naraka.
 

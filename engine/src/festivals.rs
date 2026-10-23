@@ -12,7 +12,10 @@ use super::types::*;
 pub struct FestivalRule {
     pub id: String,
     pub name: String,
-    pub name_hi: Option<String>,
+    pub name_ta: Option<String>,  // Tamil
+    pub name_te: Option<String>,  // Telugu
+    pub name_kn: Option<String>,  // Kannada
+    pub name_ml: Option<String>,  // Malayalam
     pub festival_type: FestivalType,
     pub basis: RuleBasis,
     pub reason_template: String,
@@ -47,6 +50,18 @@ pub enum RuleBasis {
         paksha: Option<Paksha>,
         tithi: TithiName,
         must_prevail_during: TimeWindow,
+    },
+    /// Nakshatra within a solar month (e.g. Onam = Shravana nakshatra in Chingam/Leo)
+    SolarNakshatra {
+        solar_rashi: u8,           // Sun's sidereal sign (4 = Leo for Chingam)
+        nakshatra: NakshatraName,
+        description: String,
+    },
+    /// Fixed day offset from a solar transit (e.g. Aadi Perukku = Cancer + 17 days)
+    SolarOffset {
+        rashi: u8,
+        day_offset: u16,
+        description: String,
     },
 }
 
@@ -94,7 +109,7 @@ pub struct FestivalSequence {
 pub struct FestivalInstance {
     pub rule_id: String,
     pub name: String,
-    pub name_hi: Option<String>,
+    pub name_ta: Option<String>,
     pub date: chrono::NaiveDate,
     pub festival_type: FestivalType,
     pub reason: String,
@@ -116,15 +131,64 @@ pub fn evaluate_festivals(
 
     for rule in rules {
         match &rule.basis {
-            RuleBasis::Lunar { month, paksha, tithi, must_prevail_during: _, .. } => {
+            RuleBasis::Lunar { month, paksha, tithi, must_prevail_during, .. } => {
                 for day in &panchang_data {
+                    // Match against the canonical Amanta month (festival rules use Amanta names)
                     let month_matches = month.as_ref()
-                        .map(|m| *m == day.lunar_month.month && !day.lunar_month.is_adhik)
+                        .map(|m| *m == day.lunar_month.amanta_month && !day.lunar_month.is_adhik)
                         .unwrap_or(true);
+
+                    // Check tithi at the specified time window
+                    let tz_offset = super::astronomy::get_tz_offset(day.date, &location.timezone);
+                    let jd = super::astronomy::date_to_jd(day.date);
+                    let tithi_matches = match must_prevail_during {
+                        TimeWindow::Sunrise => {
+                            // Default: tithi at sunrise (already in day.tithi)
+                            day.tithi.name == *tithi
+                        }
+                        TimeWindow::Pradosh => {
+                            // Pradosh = evening twilight; use sunset time
+                            let evening_h = day.sunset.unwrap_or(18.5);
+                            let evening_jd = jd + (evening_h - tz_offset) / 24.0;
+                            super::tithi::compute_tithi(evening_jd).name == *tithi
+                        }
+                        TimeWindow::Midday => {
+                            let sunrise_h = day.sunrise.unwrap_or(6.0);
+                            let sunset_h = day.sunset.unwrap_or(18.0);
+                            let midday_h = (sunrise_h + sunset_h) / 2.0;
+                            let midday_jd = jd + (midday_h - tz_offset) / 24.0;
+                            super::tithi::compute_tithi(midday_jd).name == *tithi
+                        }
+                        TimeWindow::Midnight => {
+                            // Local midnight = start of next local day
+                            let midnight_jd = jd + (24.0 - tz_offset) / 24.0;
+                            super::tithi::compute_tithi(midnight_jd).name == *tithi
+                        }
+                        TimeWindow::Moonrise => {
+                            if let Some(mr) = day.moonrise {
+                                let mr_jd = jd + (mr - tz_offset) / 24.0;
+                                super::tithi::compute_tithi(mr_jd).name == *tithi
+                            } else {
+                                day.tithi.name == *tithi // fallback to sunrise
+                            }
+                        }
+                        TimeWindow::AnyPart => {
+                            // Check if the tithi exists at any point during the day
+                            let sunrise_h = day.sunrise.unwrap_or(6.0);
+                            let sunset_h = day.sunset.unwrap_or(18.0);
+                            let start_jd = jd + (sunrise_h - tz_offset) / 24.0;
+                            let end_jd = jd + (sunset_h - tz_offset) / 24.0;
+                            // Check sunrise, midday, and sunset
+                            let mid_jd = (start_jd + end_jd) / 2.0;
+                            super::tithi::compute_tithi(start_jd).name == *tithi
+                                || super::tithi::compute_tithi(mid_jd).name == *tithi
+                                || super::tithi::compute_tithi(end_jd).name == *tithi
+                        }
+                    };
 
                     if month_matches
                         && day.paksha == *paksha
-                        && day.tithi.name == *tithi
+                        && tithi_matches
                     {
                         let reason = rule.reason_template
                             .replace("{tithi}", tithi.name())
@@ -139,7 +203,7 @@ pub fn evaluate_festivals(
                         instances.push(FestivalInstance {
                             rule_id: rule.id.clone(),
                             name: rule.name.clone(),
-                            name_hi: rule.name_hi.clone(),
+                            name_ta: rule.name_ta.clone(),
                             date: day.date,
                             festival_type: rule.festival_type.clone(),
                             reason,
@@ -167,7 +231,7 @@ pub fn evaluate_festivals(
                         instances.push(FestivalInstance {
                             rule_id: rule.id.clone(),
                             name: rule.name.clone(),
-                            name_hi: rule.name_hi.clone(),
+                            name_ta: rule.name_ta.clone(),
                             date: day.date,
                             festival_type: rule.festival_type.clone(),
                             reason: description.clone(),
@@ -178,13 +242,87 @@ pub fn evaluate_festivals(
                     }
                 }
             }
-            RuleBasis::Recurring { paksha, tithi, .. } => {
+            RuleBasis::SolarNakshatra { solar_rashi, nakshatra, description } => {
+                // Find days where sun is in the target rashi and moon's nakshatra matches
+                for day in &panchang_data {
+                    let jd = super::astronomy::date_to_jd(day.date);
+                    let sun_lon = super::astronomy::sun_sidereal_longitude(jd);
+                    let current_rashi = (sun_lon / 30.0).floor() as u8;
+
+                    if current_rashi == *solar_rashi && day.nakshatra.name == *nakshatra {
+                        instances.push(FestivalInstance {
+                            rule_id: rule.id.clone(),
+                            name: rule.name.clone(),
+                            name_ta: rule.name_ta.clone(),
+                            date: day.date,
+                            festival_type: rule.festival_type.clone(),
+                            reason: description.clone(),
+                            variant_note: None,
+                            close_call: false,
+                            sequence: rule.sequence.clone(),
+                        });
+                    }
+                }
+            }
+            RuleBasis::SolarOffset { rashi, day_offset, description } => {
+                // Find the solar transit date, then add the offset
+                for day in &panchang_data {
+                    let jd = super::astronomy::date_to_jd(day.date);
+                    let sun_lon = super::astronomy::sun_sidereal_longitude(jd);
+                    let current_rashi = (sun_lon / 30.0).floor() as u8;
+
+                    let jd_prev = super::astronomy::date_to_jd(
+                        day.date - chrono::Duration::days(1)
+                    );
+                    let sun_lon_prev = super::astronomy::sun_sidereal_longitude(jd_prev);
+                    let prev_rashi = (sun_lon_prev / 30.0).floor() as u8;
+
+                    // Transit day found; the festival is transit + offset
+                    if current_rashi == *rashi && prev_rashi != *rashi {
+                        let festival_date = day.date + chrono::Duration::days(*day_offset as i64);
+                        if festival_date >= start && festival_date <= end {
+                            instances.push(FestivalInstance {
+                                rule_id: rule.id.clone(),
+                                name: rule.name.clone(),
+                                name_ta: rule.name_ta.clone(),
+                                date: festival_date,
+                                festival_type: rule.festival_type.clone(),
+                                reason: description.clone(),
+                                variant_note: None,
+                                close_call: false,
+                                sequence: rule.sequence.clone(),
+                            });
+                        }
+                    }
+                }
+            }
+            RuleBasis::Recurring { paksha, tithi, must_prevail_during } => {
                 for day in &panchang_data {
                     let paksha_matches = paksha
                         .map(|p| p == day.paksha)
                         .unwrap_or(true);
 
-                    if paksha_matches && day.tithi.name == *tithi {
+                    // Check tithi at the specified time window
+                    let tz_offset = super::astronomy::get_tz_offset(day.date, &location.timezone);
+                    let jd = super::astronomy::date_to_jd(day.date);
+                    let tithi_matches = match must_prevail_during {
+                        TimeWindow::Pradosh => {
+                            let evening_h = day.sunset.unwrap_or(18.5);
+                            let evening_jd = jd + (evening_h - tz_offset) / 24.0;
+                            super::tithi::compute_tithi(evening_jd).name == *tithi
+                        }
+                        TimeWindow::Moonrise => {
+                            if let Some(mr) = day.moonrise {
+                                let mr_jd = jd + (mr - tz_offset) / 24.0;
+                                super::tithi::compute_tithi(mr_jd).name == *tithi
+                            } else {
+                                day.tithi.name == *tithi
+                            }
+                        }
+                        _ => day.tithi.name == *tithi, // Sunrise and others: use sunrise tithi
+                    };
+
+                    if paksha_matches && tithi_matches {
                         let reason = rule.reason_template
                             .replace("{tithi}", tithi.name())
                             .replace("{month}", day.lunar_month.month.name());
@@ -192,7 +330,7 @@ pub fn evaluate_festivals(
                         instances.push(FestivalInstance {
                             rule_id: rule.id.clone(),
                             name: rule.name.clone(),
-                            name_hi: rule.name_hi.clone(),
+                            name_ta: rule.name_ta.clone(),
                             date: day.date,
                             festival_type: rule.festival_type.clone(),
                             reason,
@@ -207,34 +345,22 @@ pub fn evaluate_festivals(
     }
 
     instances.sort_by_key(|i| i.date);
+
+    // Dedup: when the same rule fires on consecutive days (tithi spans two sunrises),
+    // keep only the first occurrence (most panchangs pick the earlier date).
+    instances.dedup_by(|b, a| a.rule_id == b.rule_id && (b.date - a.date).num_days() <= 1);
+
     instances
 }
 
-/// Load the default set of festival rules for the MVP (~20 observances).
+/// Load the default set of festival rules -- South Indian / Tamil focus.
 pub fn default_rules() -> Vec<FestivalRule> {
     vec![
-        // === DIWALI SEQUENCE (5 days) ===
-        FestivalRule {
-            id: "dhanteras".into(),
-            name: "Dhanteras".into(),
-            name_hi: Some("\u{0927}\u{0928}\u{0924}\u{0947}\u{0930}\u{0938}".into()),
-            festival_type: FestivalType::MajorFestival,
-            basis: RuleBasis::Lunar {
-                month: Some(LunarMonth::Ashvina),
-                paksha: Paksha::Krishna,
-                tithi: TithiName::Trayodashi,
-                must_prevail_during: TimeWindow::Pradosh,
-                tie_break: TieBreak::PreviousDay,
-                adhik_maas: AdhikMaasBehaviour::Skip,
-            },
-            reason_template: "{tithi} of {paksha} Paksha in {month} -- Dhanteras, honouring Dhanvantari and prosperity".into(),
-            variants: vec![],
-            sequence: Some(FestivalSequence { group: "diwali".into(), day: 1, total: 5 }),
-        },
+        // === DEEPAVALI (2 days in South Indian tradition) ===
         FestivalRule {
             id: "naraka-chaturdashi".into(),
-            name: "Naraka Chaturdashi".into(),
-            name_hi: Some("\u{0928}\u{0930}\u{0915} \u{091a}\u{0924}\u{0941}\u{0930}\u{094d}\u{0926}\u{0936}\u{0940}".into()),
+            name: "Deepavali".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0BA4}\u{0BC0}\u{0BAA}\u{0BBE}\u{0BB5}\u{0BB3}\u{0BBF}".into()), // தீபாவளி
             festival_type: FestivalType::MajorFestival,
             basis: RuleBasis::Lunar {
                 month: Some(LunarMonth::Ashvina),
@@ -244,18 +370,14 @@ pub fn default_rules() -> Vec<FestivalRule> {
                 tie_break: TieBreak::PreviousDay,
                 adhik_maas: AdhikMaasBehaviour::Skip,
             },
-            reason_template: "{tithi} of {paksha} Paksha -- Krishna's victory over Naraka; the main Deepavali morning in South India".into(),
-            variants: vec![SectVariant {
-                sect: Sect::Smarta,
-                note: "In South India, this is the main Deepavali, with an oil bath before dawn".into(),
-                date_offset: None,
-            }],
-            sequence: Some(FestivalSequence { group: "diwali".into(), day: 2, total: 5 }),
+            reason_template: "{tithi} of {paksha} Paksha -- Deepavali; oil bath before dawn, Krishna's victory over Naraka".into(),
+            variants: vec![],
+            sequence: Some(FestivalSequence { group: "deepavali".into(), day: 1, total: 2 }),
         },
         FestivalRule {
             id: "diwali-lakshmi-puja".into(),
-            name: "Diwali (Lakshmi Puja)".into(),
-            name_hi: Some("\u{0926}\u{0940}\u{092a}\u{093e}\u{0935}\u{0932}\u{0940}".into()),
+            name: "Deepavali Lakshmi Puja".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0BB2}\u{0B95}\u{0BCD}\u{0BB7}\u{0BCD}\u{0BAE}\u{0BBF} \u{0BAA}\u{0BC2}\u{0B9C}\u{0BC8}".into()), // லக்ஷ்மி பூஜை
             festival_type: FestivalType::MajorFestival,
             basis: RuleBasis::Lunar {
                 month: Some(LunarMonth::Ashvina),
@@ -265,74 +387,34 @@ pub fn default_rules() -> Vec<FestivalRule> {
                 tie_break: TieBreak::PreviousDay,
                 adhik_maas: AdhikMaasBehaviour::Skip,
             },
-            reason_template: "Amavasya in {month} -- the new-moon night of Kartika, when Lakshmi is welcomed with lamps".into(),
-            variants: vec![
-                SectVariant {
-                    sect: Sect::Smarta,
-                    note: "In Bengal, this is Kali Puja".into(),
-                    date_offset: None,
-                },
-            ],
-            sequence: Some(FestivalSequence { group: "diwali".into(), day: 3, total: 5 }),
-        },
-        FestivalRule {
-            id: "govardhan-puja".into(),
-            name: "Govardhan Puja".into(),
-            name_hi: Some("\u{0917}\u{094b}\u{0935}\u{0930}\u{094d}\u{0927}\u{0928} \u{092a}\u{0942}\u{091c}\u{093e}".into()),
-            festival_type: FestivalType::MajorFestival,
-            basis: RuleBasis::Lunar {
-                month: Some(LunarMonth::Kartika),
-                paksha: Paksha::Shukla,
-                tithi: TithiName::Pratipada,
-                must_prevail_during: TimeWindow::Sunrise,
-                tie_break: TieBreak::NextDay,
-                adhik_maas: AdhikMaasBehaviour::Skip,
-            },
-            reason_template: "{tithi} of {paksha} Paksha in {month} -- Krishna lifting Mount Govardhan; the Gujarati New Year".into(),
+            reason_template: "Amavasya in {month} -- Lakshmi Puja with lamps on the new-moon night".into(),
             variants: vec![],
-            sequence: Some(FestivalSequence { group: "diwali".into(), day: 4, total: 5 }),
-        },
-        FestivalRule {
-            id: "bhai-dooj".into(),
-            name: "Bhai Dooj".into(),
-            name_hi: Some("\u{092d}\u{093e}\u{0908} \u{0926}\u{0942}\u{091c}".into()),
-            festival_type: FestivalType::MajorFestival,
-            basis: RuleBasis::Lunar {
-                month: Some(LunarMonth::Kartika),
-                paksha: Paksha::Shukla,
-                tithi: TithiName::Dwitiya,
-                must_prevail_during: TimeWindow::Sunrise,
-                tie_break: TieBreak::NextDay,
-                adhik_maas: AdhikMaasBehaviour::Skip,
-            },
-            reason_template: "{tithi} of {paksha} Paksha in {month} -- brothers and sisters honour their bond".into(),
-            variants: vec![],
-            sequence: Some(FestivalSequence { group: "diwali".into(), day: 5, total: 5 }),
+            sequence: Some(FestivalSequence { group: "deepavali".into(), day: 2, total: 2 }),
         },
 
         // === RECURRING OBSERVANCES ===
         FestivalRule {
             id: "ekadashi".into(),
             name: "Ekadashi".into(),
-            name_hi: Some("\u{090f}\u{0915}\u{093e}\u{0926}\u{0936}\u{0940}".into()),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0B8F}\u{0B95}\u{0BBE}\u{0BA4}\u{0B9A}\u{0BBF}".into()), // ஏகாதசி
             festival_type: FestivalType::RecurringFortnightly,
             basis: RuleBasis::Recurring {
-                paksha: None, // Both pakshas
+                paksha: None,
                 tithi: TithiName::Ekadashi,
                 must_prevail_during: TimeWindow::Sunrise,
             },
             reason_template: "{tithi} of {month} -- a fasting day sacred to Vishnu".into(),
             variants: vec![SectVariant {
                 sect: Sect::Vaishnava,
-                note: "Vaishnavas may observe on the next day if Dashami touches sunrise".into(),
+                note: "Sri Vaishnavas may observe on the next day if Dashami touches sunrise".into(),
                 date_offset: Some(1),
             }],
             sequence: None,
         },
         FestivalRule {
             id: "pradosh-vrat".into(),
-            name: "Pradosh Vrat".into(),
-            name_hi: Some("\u{092a}\u{094d}\u{0930}\u{0926}\u{094b}\u{0937} \u{0935}\u{094d}\u{0930}\u{0924}".into()),
+            name: "Pradosham".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0BAA}\u{0BBF}\u{0BB0}\u{0BA4}\u{0BCB}\u{0BB7}\u{0BAE}\u{0BCD}".into()), // பிரதோஷம்
             festival_type: FestivalType::RecurringFortnightly,
             basis: RuleBasis::Recurring {
                 paksha: None,
@@ -346,21 +428,21 @@ pub fn default_rules() -> Vec<FestivalRule> {
         FestivalRule {
             id: "sankashti-chaturthi".into(),
             name: "Sankashti Chaturthi".into(),
-            name_hi: Some("\u{0938}\u{0902}\u{0915}\u{0937}\u{094d}\u{091f}\u{0940} \u{091a}\u{0924}\u{0941}\u{0930}\u{094d}\u{0925}\u{0940}".into()),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0B9A}\u{0B99}\u{0BCD}\u{0B95}\u{0B9F}\u{0BB9}\u{0BB0} \u{0B9A}\u{0BA4}\u{0BC1}\u{0BB0}\u{0BCD}\u{0BA4}\u{0BCD}\u{0BA4}\u{0BBF}".into()), // சங்கடஹர சதுர்த்தி
             festival_type: FestivalType::RecurringMonthly,
             basis: RuleBasis::Recurring {
                 paksha: Some(Paksha::Krishna),
                 tithi: TithiName::Chaturthi,
                 must_prevail_during: TimeWindow::Moonrise,
             },
-            reason_template: "{tithi} of Krishna Paksha in {month} -- fast broken after moonrise, for Ganesha".into(),
+            reason_template: "{tithi} of Krishna Paksha in {month} -- fast broken after moonrise, for Vinayagar".into(),
             variants: vec![],
             sequence: None,
         },
         FestivalRule {
             id: "purnima".into(),
             name: "Purnima".into(),
-            name_hi: Some("\u{092a}\u{0942}\u{0930}\u{094d}\u{0923}\u{093f}\u{092e}\u{093e}".into()),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0BAA}\u{0BCC}\u{0BB0}\u{0BCD}\u{0BA3}\u{0BAE}\u{0BBF}".into()), // பௌர்ணமி
             festival_type: FestivalType::RecurringMonthly,
             basis: RuleBasis::Recurring {
                 paksha: Some(Paksha::Shukla),
@@ -374,7 +456,7 @@ pub fn default_rules() -> Vec<FestivalRule> {
         FestivalRule {
             id: "amavasya".into(),
             name: "Amavasya".into(),
-            name_hi: Some("\u{0905}\u{092e}\u{093e}\u{0935}\u{0938}\u{094d}\u{092f}\u{093e}".into()),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0B85}\u{0BAE}\u{0BBE}\u{0BB5}\u{0BBE}\u{0B9A}\u{0BC8}".into()), // அமாவாசை
             festival_type: FestivalType::RecurringMonthly,
             basis: RuleBasis::Recurring {
                 paksha: Some(Paksha::Krishna),
@@ -388,25 +470,25 @@ pub fn default_rules() -> Vec<FestivalRule> {
 
         // === MAJOR FESTIVALS ===
         FestivalRule {
-            id: "makar-sankranti".into(),
-            name: "Makar Sankranti".into(),
-            name_hi: Some("\u{092e}\u{0915}\u{0930} \u{0938}\u{0902}\u{0915}\u{094d}\u{0930}\u{093e}\u{0902}\u{0924}\u{093f}".into()),
+            id: "pongal".into(),
+            name: "Pongal".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0BAA}\u{0BCA}\u{0B99}\u{0BCD}\u{0B95}\u{0BB2}\u{0BCD}".into()), // பொங்கல்
             festival_type: FestivalType::SolarTransit,
             basis: RuleBasis::Solar {
-                rashi: 9, // Capricorn (Makara) in sidereal zodiac
-                description: "Sun enters sidereal Capricorn -- the traditional start of Uttarayana".into(),
+                rashi: 9, // Capricorn (Makara) -- Thai Pongal
+                description: "Sun enters sidereal Capricorn -- Thai Pongal, Tamil harvest thanksgiving".into(),
             },
-            reason_template: "Sun enters sidereal Capricorn".into(),
+            reason_template: "Sun enters sidereal Capricorn -- Pongalo Pongal!".into(),
             variants: vec![],
             sequence: None,
         },
         FestivalRule {
             id: "maha-shivaratri".into(),
             name: "Maha Shivaratri".into(),
-            name_hi: Some("\u{092e}\u{0939}\u{093e}\u{0936}\u{093f}\u{0935}\u{0930}\u{093e}\u{0924}\u{094d}\u{0930}\u{093f}".into()),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0BAE}\u{0B95}\u{0BBE} \u{0B9A}\u{0BBF}\u{0BB5}\u{0BB0}\u{0BBE}\u{0BA4}\u{0BCD}\u{0BA4}\u{0BBF}\u{0BB0}\u{0BBF}".into()), // மகா சிவராத்திரி
             festival_type: FestivalType::MajorFestival,
             basis: RuleBasis::Lunar {
-                month: Some(LunarMonth::Magha), // Amanta; Phalguna in Purnimanta
+                month: Some(LunarMonth::Magha),
                 paksha: Paksha::Krishna,
                 tithi: TithiName::Chaturdashi,
                 must_prevail_during: TimeWindow::Midnight,
@@ -418,26 +500,22 @@ pub fn default_rules() -> Vec<FestivalRule> {
             sequence: None,
         },
         FestivalRule {
-            id: "holi".into(),
-            name: "Holi (Holika Dahan)".into(),
-            name_hi: Some("\u{0939}\u{094b}\u{0932}\u{0940}".into()),
-            festival_type: FestivalType::MajorFestival,
-            basis: RuleBasis::Lunar {
-                month: Some(LunarMonth::Phalguna),
-                paksha: Paksha::Shukla,
-                tithi: TithiName::Purnima,
-                must_prevail_during: TimeWindow::Pradosh,
-                tie_break: TieBreak::PreviousDay,
-                adhik_maas: AdhikMaasBehaviour::Skip,
+            id: "ugadi".into(),
+            name: "Puthandu / Vishu".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0BAA}\u{0BC1}\u{0BA4}\u{0BCD}\u{0BA4}\u{0BBE}\u{0BA3}\u{0BCD}\u{0B9F}\u{0BC1}".into()), // புத்தாண்டு
+            festival_type: FestivalType::SolarTransit,
+            basis: RuleBasis::Solar {
+                rashi: 0, // Aries (Mesha) -- Tamil/Malayalam New Year
+                description: "Sun enters sidereal Aries -- Tamil Puthandu / Malayalam Vishu".into(),
             },
-            reason_template: "Purnima of Phalguna at dusk -- bonfire night recalling Prahlada's faith".into(),
+            reason_template: "Sun enters sidereal Aries -- Tamil and Malayalam New Year".into(),
             variants: vec![],
             sequence: None,
         },
         FestivalRule {
             id: "ram-navami".into(),
-            name: "Ram Navami".into(),
-            name_hi: Some("\u{0930}\u{093e}\u{092e} \u{0928}\u{0935}\u{092e}\u{0940}".into()),
+            name: "Sri Rama Navami".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0BB8}\u{0BCD}\u{0BB0}\u{0BC0} \u{0BB0}\u{0BBE}\u{0BAE} \u{0BA8}\u{0BB5}\u{0BAE}\u{0BBF}".into()), // ஸ்ரீ ராம நவமி
             festival_type: FestivalType::MajorFestival,
             basis: RuleBasis::Lunar {
                 month: Some(LunarMonth::Chaitra),
@@ -447,14 +525,14 @@ pub fn default_rules() -> Vec<FestivalRule> {
                 tie_break: TieBreak::NextDay,
                 adhik_maas: AdhikMaasBehaviour::Skip,
             },
-            reason_template: "{tithi} of {paksha} Paksha in {month} at midday -- birth of Rama in Ayodhya".into(),
+            reason_template: "{tithi} of {paksha} Paksha in {month} at midday -- birth of Rama".into(),
             variants: vec![],
             sequence: None,
         },
         FestivalRule {
             id: "ganesh-chaturthi".into(),
-            name: "Ganesh Chaturthi".into(),
-            name_hi: Some("\u{0917}\u{0923}\u{0947}\u{0936} \u{091a}\u{0924}\u{0941}\u{0930}\u{094d}\u{0925}\u{0940}".into()),
+            name: "Vinayagar Chaturthi".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0BB5}\u{0BBF}\u{0BA8}\u{0BBE}\u{0BAF}\u{0B95}\u{0BB0}\u{0BCD} \u{0B9A}\u{0BA4}\u{0BC1}\u{0BB0}\u{0BCD}\u{0BA4}\u{0BCD}\u{0BA4}\u{0BBF}".into()), // விநாயகர் சதுர்த்தி
             festival_type: FestivalType::MajorFestival,
             basis: RuleBasis::Lunar {
                 month: Some(LunarMonth::Bhadrapada),
@@ -464,58 +542,135 @@ pub fn default_rules() -> Vec<FestivalRule> {
                 tie_break: TieBreak::NextDay,
                 adhik_maas: AdhikMaasBehaviour::Skip,
             },
-            reason_template: "{tithi} of {paksha} Paksha in {month} -- birth of Ganesha, the remover of obstacles".into(),
+            reason_template: "{tithi} of {paksha} Paksha in {month} -- Vinayagar Chaturthi, birth of Pillaiyar".into(),
             variants: vec![],
             sequence: None,
         },
         FestivalRule {
-            id: "chhath-puja".into(),
-            name: "Chhath Puja".into(),
-            name_hi: Some("\u{091b}\u{0920} \u{092a}\u{0942}\u{091c}\u{093e}".into()),
+            id: "navaratri-golu".into(),
+            name: "Navaratri Golu".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0BA8}\u{0BB5}\u{0BB0}\u{0BBE}\u{0BA4}\u{0BCD}\u{0BA4}\u{0BBF}\u{0BB0}\u{0BBF} \u{0B95}\u{0BCA}\u{0BB2}\u{0BC1}".into()), // நவராத்திரி கொலு
             festival_type: FestivalType::MajorFestival,
             basis: RuleBasis::Lunar {
-                month: Some(LunarMonth::Kartika),
+                month: Some(LunarMonth::Ashvina),
                 paksha: Paksha::Shukla,
-                tithi: TithiName::Shashthi,
-                must_prevail_during: TimeWindow::Sunrise,
-                tie_break: TieBreak::PreviousDay,
-                adhik_maas: AdhikMaasBehaviour::Skip,
-            },
-            reason_template: "{tithi} of {paksha} Paksha in {month} -- sun worship at the riverbank".into(),
-            variants: vec![],
-            sequence: None,
-        },
-        FestivalRule {
-            id: "dev-uthani-ekadashi".into(),
-            name: "Dev Uthani Ekadashi".into(),
-            name_hi: Some("\u{0926}\u{0947}\u{0935} \u{0909}\u{0920}\u{0928}\u{0940} \u{090f}\u{0915}\u{093e}\u{0926}\u{0936}\u{0940}".into()),
-            festival_type: FestivalType::MajorFestival,
-            basis: RuleBasis::Lunar {
-                month: Some(LunarMonth::Kartika),
-                paksha: Paksha::Shukla,
-                tithi: TithiName::Ekadashi,
+                tithi: TithiName::Pratipada,
                 must_prevail_during: TimeWindow::Sunrise,
                 tie_break: TieBreak::NextDay,
                 adhik_maas: AdhikMaasBehaviour::Skip,
             },
-            reason_template: "{tithi} of {paksha} Paksha in {month} -- Vishnu awakens, the wedding season begins".into(),
+            reason_template: "{tithi} of {paksha} Paksha in {month} -- Navaratri begins; Golu display and Devi worship".into(),
+            variants: vec![],
+            sequence: Some(FestivalSequence { group: "navaratri".into(), day: 1, total: 10 }),
+        },
+        FestivalRule {
+            id: "skanda-shashthi".into(),
+            name: "Skanda Shashthi".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0B95}\u{0BA8}\u{0BCD}\u{0BA4} \u{0B9A}\u{0BB7}\u{0BCD}\u{0B9F}\u{0BBF}".into()), // கந்த சஷ்டி
+            festival_type: FestivalType::MajorFestival,
+            basis: RuleBasis::Lunar {
+                month: Some(LunarMonth::Ashvina),
+                paksha: Paksha::Shukla,
+                tithi: TithiName::Shashthi,
+                must_prevail_during: TimeWindow::Pradosh,
+                tie_break: TieBreak::PreviousDay,
+                adhik_maas: AdhikMaasBehaviour::Skip,
+            },
+            reason_template: "{tithi} of {paksha} Paksha -- Soorasamharam; Murugan defeats Soorapadman".into(),
             variants: vec![],
             sequence: None,
         },
         FestivalRule {
-            id: "vasant-panchami".into(),
-            name: "Vasant Panchami".into(),
-            name_hi: Some("\u{0935}\u{0938}\u{0902}\u{0924} \u{092a}\u{0902}\u{091a}\u{092e}\u{0940}".into()),
+            id: "karthigai-deepam".into(),
+            name: "Karthigai Deepam".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0B95}\u{0BBE}\u{0BB0}\u{0BCD}\u{0BA4}\u{0BCD}\u{0BA4}\u{0BBF}\u{0B95}\u{0BC8} \u{0BA4}\u{0BC0}\u{0BAA}\u{0BAE}\u{0BCD}".into()), // கார்த்திகை தீபம்
+            festival_type: FestivalType::MajorFestival,
+            basis: RuleBasis::Lunar {
+                month: Some(LunarMonth::Kartika),
+                paksha: Paksha::Shukla,
+                tithi: TithiName::Purnima,
+                must_prevail_during: TimeWindow::Pradosh,
+                tie_break: TieBreak::PreviousDay,
+                adhik_maas: AdhikMaasBehaviour::Skip,
+            },
+            reason_template: "Kartika Purnima at dusk -- the Tamil festival of lamps; Shiva as the infinite Jyotirlinga".into(),
+            variants: vec![],
+            sequence: None,
+        },
+        FestivalRule {
+            id: "thaipusam".into(),
+            name: "Thaipusam".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0BA4}\u{0BC8}\u{0BAA}\u{0BCD}\u{0BAA}\u{0BC2}\u{0B9A}\u{0BAE}\u{0BCD}".into()), // தைப்பூசம்
             festival_type: FestivalType::MajorFestival,
             basis: RuleBasis::Lunar {
                 month: Some(LunarMonth::Magha),
                 paksha: Paksha::Shukla,
-                tithi: TithiName::Panchami,
+                tithi: TithiName::Purnima,
                 must_prevail_during: TimeWindow::Sunrise,
-                tie_break: TieBreak::NextDay,
+                tie_break: TieBreak::PreviousDay,
                 adhik_maas: AdhikMaasBehaviour::Skip,
             },
-            reason_template: "{tithi} of {paksha} Paksha in {month} -- Saraswati Puja, the first stirrings of spring".into(),
+            reason_template: "Magha Purnima -- Thaipusam; Parvati gave Murugan the Vel".into(),
+            variants: vec![],
+            sequence: None,
+        },
+        FestivalRule {
+            id: "varalakshmi-vratam".into(),
+            name: "Varalakshmi Vratam".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0BB5}\u{0BB0}\u{0BB2}\u{0B95}\u{0BCD}\u{0BB7}\u{0BCD}\u{0BAE}\u{0BBF} \u{0BB5}\u{0BBF}\u{0BB0}\u{0BA4}\u{0BAE}\u{0BCD}".into()), // வரலக்ஷ்மி விரதம்
+            festival_type: FestivalType::MajorFestival,
+            basis: RuleBasis::Lunar {
+                month: Some(LunarMonth::Shravana),
+                paksha: Paksha::Shukla,
+                tithi: TithiName::Dwadashi,
+                must_prevail_during: TimeWindow::Sunrise,
+                tie_break: TieBreak::PreviousDay,
+                adhik_maas: AdhikMaasBehaviour::Skip,
+            },
+            reason_template: "Shravana Shukla Paksha -- Varalakshmi Vratam; Ashtalakshmi worship for family well-being".into(),
+            variants: vec![],
+            sequence: None,
+        },
+
+        // === SOUTH INDIAN REGIONAL ===
+        FestivalRule {
+            id: "onam".into(),
+            name: "Onam".into(),
+            name_te: None, name_kn: None, name_ml: Some("ഓണം".into()), name_ta: Some("ஓணம்".into()),
+            festival_type: FestivalType::Regional,
+            basis: RuleBasis::SolarNakshatra {
+                solar_rashi: 4, // Leo (Chingam)
+                nakshatra: NakshatraName::Shravana, // Thiruvonam
+                description: "Thiruvonam nakshatra in Chingam -- Onam; Mahabali's annual homecoming".into(),
+            },
+            reason_template: "Thiruvonam nakshatra in Chingam -- Onam".into(),
+            variants: vec![],
+            sequence: None,
+        },
+        FestivalRule {
+            id: "aadi-perukku".into(),
+            name: "Aadi Perukku".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("ஆடிப்பெருக்கு".into()),
+            festival_type: FestivalType::Regional,
+            basis: RuleBasis::SolarOffset {
+                rashi: 3, // Cancer (Kataka/Aadi)
+                day_offset: 17, // 18th day of Aadi = transit + 17
+                description: "18th day of Tamil month Aadi -- Aadi Perukku; river festival of water and fertility".into(),
+            },
+            reason_template: "18th of Aadi -- Aadi Perukku".into(),
+            variants: vec![],
+            sequence: None,
+        },
+        FestivalRule {
+            id: "ayyappa-mandalam".into(),
+            name: "Mandala Kalam".into(),
+            name_te: None, name_kn: None, name_ml: Some("മണ്ഡലകാലം".into()), name_ta: Some("ஐயப்பன் மண்டல காலம்".into()),
+            festival_type: FestivalType::Regional,
+            basis: RuleBasis::Solar {
+                rashi: 7, // Scorpio (Vrischikam)
+                description: "Sun enters sidereal Scorpio -- Mandala Kalam begins; 41-day Ayyappa austerity season".into(),
+            },
+            reason_template: "Sun enters Scorpio -- Ayyappa Mandala Kalam begins".into(),
             variants: vec![],
             sequence: None,
         },
@@ -529,15 +684,15 @@ mod tests {
     #[test]
     fn test_default_rules_count() {
         let rules = default_rules();
-        assert!(rules.len() >= 18, "Should have at least 18 default rules, got {}", rules.len());
+        assert!(rules.len() >= 20, "Should have at least 20 default rules, got {}", rules.len());
     }
 
     #[test]
-    fn test_diwali_sequence() {
+    fn test_deepavali_sequence() {
         let rules = default_rules();
-        let diwali_rules: Vec<_> = rules.iter()
-            .filter(|r| r.sequence.as_ref().map(|s| s.group == "diwali").unwrap_or(false))
+        let deepavali_rules: Vec<_> = rules.iter()
+            .filter(|r| r.sequence.as_ref().map(|s| s.group == "deepavali").unwrap_or(false))
             .collect();
-        assert_eq!(diwali_rules.len(), 5, "Should have 5 Diwali sequence rules");
+        assert_eq!(deepavali_rules.len(), 2, "Should have 2 Deepavali sequence rules");
     }
 }

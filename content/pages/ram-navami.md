@@ -1,8 +1,11 @@
 ---
 id: ram-navami
 names:
-  en: "Ram Navami"
-  hi: "राम नवमी"
+  en: "Sri Rama Navami"
+  ta: "ஸ்ரீ ராம நவமி"
+  te: "శ్రీ రామ నవమి"
+  kn: "ಶ್ರೀ ರಾಮ ನವಮಿ"
+  ml: "ശ്രീരാമ നവമി"
 type: major_festival
 rule:
   basis: lunar

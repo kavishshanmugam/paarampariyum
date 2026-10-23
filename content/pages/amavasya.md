@@ -2,7 +2,10 @@
 id: amavasya
 names:
   en: "Amavasya (New Moon)"
-  hi: "अमावस्या"
+  ta: "அமாவாசை"
+  te: "అమావాస్య"
+  kn: "ಅಮಾವಾಸ್ಯೆ"
+  ml: "അമാവാസി"
 type: recurring_monthly
 rule:
   basis: lunar

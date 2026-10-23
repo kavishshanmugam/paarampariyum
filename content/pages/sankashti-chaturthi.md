@@ -2,7 +2,10 @@
 id: sankashti-chaturthi
 names:
   en: "Sankashti Chaturthi"
-  hi: "संकष्टी चतुर्थी"
+  ta: "சங்கடஹர சதுர்த்தி"
+  te: "సంకష్టహర చతుర్థి"
+  kn: "ಸಂಕಷ್ಟಹರ ಚತುರ್ಥಿ"
+  ml: "സങ്കടഹര ചതുർത്ഥി"
 type: recurring_monthly
 rule:
   basis: lunar

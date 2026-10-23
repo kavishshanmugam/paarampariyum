@@ -22,9 +22,11 @@ pub fn determine_lunar_month(
     let sun_lon = sun_sidereal_longitude(new_moon_jd);
     let rashi = (sun_lon / 30.0).floor() as u8; // 0-11
 
-    // Map rashi to lunar month
-    // Rashi 0 (Mesha/Aries) -> Chaitra, etc.
-    let month = LunarMonth::from_index(rashi);
+    // Map rashi to lunar month (Amanta convention).
+    // The lunar month is named after the solar transit (Sankranti) that occurs
+    // during it. At the new moon, the sun is in rashi X; during the month it
+    // will enter rashi X+1, so the month name corresponds to rashi+1.
+    let amanta_month = LunarMonth::from_index((rashi + 1) % 12);
 
     // Check for Adhik Maas: if the Sun doesn't change rashi during this lunar month
     let next_new_moon_jd = find_next_new_moon(jd);
@@ -36,14 +38,14 @@ pub fn determine_lunar_month(
     let tithi_info = super::tithi::compute_tithi(jd);
     let in_krishna = tithi_info.tithi_number > 15;
 
-    // Adjust month name for purnimanta system
+    // Display month: in Purnimanta, Krishna Paksha gets the next month's name
     let display_month = match conventions.month_system {
-        MonthSystem::Amanta => month,
+        MonthSystem::Amanta => amanta_month,
         MonthSystem::Purnimanta => {
             if in_krishna {
-                LunarMonth::from_index((rashi + 1) % 12)
+                LunarMonth::from_index((rashi + 2) % 12)
             } else {
-                month
+                amanta_month
             }
         }
     };
@@ -59,6 +61,7 @@ pub fn determine_lunar_month(
 
     LunarMonthInfo {
         month: display_month,
+        amanta_month,
         is_adhik,
         year_vikram: vikram,
         year_shaka: shaka,

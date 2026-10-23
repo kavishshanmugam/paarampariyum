@@ -350,8 +350,9 @@ impl LunarMonth {
 /// Lunar month info including extra month handling
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LunarMonthInfo {
-    pub month: LunarMonth,
-    pub is_adhik: bool, // Intercalary (extra) month
+    pub month: LunarMonth,         // Display month (respects user's Amanta/Purnimanta setting)
+    pub amanta_month: LunarMonth,  // Canonical Amanta month (used for festival rule matching)
+    pub is_adhik: bool,            // Intercalary (extra) month
     pub year_vikram: u16,
     pub year_shaka: u16,
 }
