@@ -243,6 +243,13 @@ function getFestivalDotClass(type) {
   return 'recurring';
 }
 
+function formatTimeHours(hours) {
+  if (hours == null) return '-';
+  const h = Math.floor(hours);
+  const m = Math.floor((hours - h) * 60);
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
 function formatDateStr(d) {
   return d.getFullYear() + '-' +
     String(d.getMonth() + 1).padStart(2, '0') + '-' +
@@ -273,11 +280,25 @@ function showDayDetail(app, dateStr, panchang, festivals) {
       <span class="info-label">Paksha</span>
       <span class="info-value">${panchang.paksha || '-'}</span>
     </div>
+    ${panchang.sunrise != null ? `
+    <div class="info-row">
+      <span class="info-label">Sunrise</span>
+      <span class="info-value">${formatTimeHours(panchang.sunrise)}</span>
+    </div>` : ''}
+    ${panchang.sunset != null ? `
+    <div class="info-row">
+      <span class="info-label">Sunset</span>
+      <span class="info-value">${formatTimeHours(panchang.sunset)}</span>
+    </div>` : ''}
     ` : '<p style="color:var(--text-muted);font-size:13px;">No panchang data available</p>'}
     ${festivals.length > 0 ? festivals.map(f => `
       <div class="festival-item clickable" onclick="app.openEventPage('${f.rule_id}', '${f.name.replace(/'/g, "\\'")}')">
         <div class="festival-dot ${getFestivalDotClass(f.festival_type)}"></div>
-        <div class="festival-name">${f.name}</div>
+        <div>
+          <div class="festival-name">${f.name}${f.close_call ? ' <span class="close-call-badge">close call</span>' : ''}</div>
+          ${f.reason ? `<div class="festival-reason">${f.reason}</div>` : ''}
+          ${f.variant_note ? `<div class="festival-reason" style="font-style:italic;">${f.variant_note}</div>` : ''}
+        </div>
         <svg class="festival-chevron" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l4 4-4 4"/></svg>
       </div>
     `).join('') : ''}
