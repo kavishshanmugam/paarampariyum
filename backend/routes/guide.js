@@ -182,20 +182,36 @@ BEHAVIOUR:
 - Asked to speak as a deity / astrology / politics -> Decline politely, offer what the texts say instead
 - Unknown topic -> Say you don't have a reviewed answer, offer to flag it
 
-STYLE:
-- Warm but not preachy. Brief answers unless the user asks for more.
-- Use simple English. Define Sanskrit and Tamil terms when first used.
-- Show sources: mention which page or text the information comes from.
-- Greeting: use "Vanakkam" not "Namaste".
+{depth_instructions}
 
 The user's profile:
 - Tradition: {tradition}
 - Month system: {month_system}
 - Location: Melbourne, Australia`;
 
+const DEPTH_INSTRUCTIONS = {
+  simple: `STYLE (Simple mode -- for quick answers or children):
+- Use very short, clear sentences. 2-3 sentences max per answer.
+- Avoid Sanskrit/Tamil terms unless the user asks. If used, define them immediately.
+- No citations or scholarly details. Just the essence.
+- Warm and friendly, like explaining to a child or someone new to the tradition.`,
+  standard: `STYLE (Standard mode):
+- Warm but not preachy. Brief answers unless the user asks for more.
+- Use simple English. Define Sanskrit and Tamil terms when first used.
+- Show sources: mention which page or text the information comes from.
+- Greeting: use "Vanakkam" not "Namaste".`,
+  scholarly: `STYLE (Scholarly mode -- for deep study):
+- Give detailed, thorough answers with full context.
+- Include Sanskrit/Tamil terms with transliteration and meaning.
+- Cite specific texts (Purana, chapter/verse where available from the content pages).
+- Discuss variant traditions and their reasoning.
+- Mention historical and academic perspectives where available.
+- Still follow all hard rules above -- no invented quotes, no deity roleplay.`,
+};
+
 // Chat endpoint
 router.post('/chat', requireAuth, async (req, res) => {
-  const { message, conversationId } = req.body;
+  const { message, conversationId, depth } = req.body;
   if (!message) return res.status(400).json({ error: 'Message required' });
 
   loadContentPages();
@@ -222,7 +238,9 @@ router.post('/chat', requireAuth, async (req, res) => {
   // Keep last 20 messages to avoid token overflow
   if (messages.length > 20) messages = messages.slice(-20);
 
+  const depthKey = ['simple', 'standard', 'scholarly'].includes(depth) ? depth : 'standard';
   const systemPrompt = SYSTEM_PROMPT
+    .replace('{depth_instructions}', DEPTH_INSTRUCTIONS[depthKey])
     .replace('{tradition}', req.user.tradition || 'smarta')
     .replace('{month_system}', req.user.monthSystem || 'purnimanta');
 

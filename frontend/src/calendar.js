@@ -9,6 +9,7 @@
  */
 
 let currentYear, currentMonth;
+let yearViewActive = false;
 
 export async function renderCalendar(app) {
   const container = document.getElementById('view-calendar');
@@ -22,6 +23,11 @@ export async function renderCalendar(app) {
   container.innerHTML = `<div class="loading"><div class="loading-spinner"></div>Loading calendar...</div>`;
 
   try {
+    if (yearViewActive) {
+      await renderYearView(app, container);
+      return;
+    }
+
     // Get the first and last day of the displayed month grid
     const firstDay = new Date(currentYear, currentMonth, 1);
     const lastDay = new Date(currentYear, currentMonth + 1, 0);
@@ -149,7 +155,11 @@ function renderCalendarContent(app, panchangByDate, festivalsByDate, startDate, 
       <button class="calendar-nav-btn cal-next">&rarr;</button>
     </div>
 
-    <div style="text-align: center; margin-bottom: 12px;">
+    <div style="text-align: center; margin-bottom: 12px; display: flex; gap: 8px; justify-content: center;">
+      <button class="cal-export-btn" onclick="window._toggleYearView()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+        Year View
+      </button>
       <button class="cal-export-btn" onclick="window._exportICS()">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3M2 12v2h12v-2"/></svg>
         Export .ics
@@ -371,6 +381,112 @@ window._exportICS = async function() {
   } catch (e) {
     console.error('Failed to export ICS:', e);
   }
+};
+
+// === Year View ===
+window._toggleYearView = function() {
+  yearViewActive = !yearViewActive;
+  renderCalendar(window.app);
+};
+
+async function renderYearView(app, container) {
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  // Fetch festivals for 24 months from current month
+  const startDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
+  const endYear = currentYear + 2;
+  const endDate = `${endYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
+
+  let festivals;
+  if (app.isTauri) {
+    festivals = await app.getFestivals(startDate, endDate);
+  } else {
+    // Gather mock festivals for 24 months
+    festivals = [];
+    for (let i = 0; i < 24; i++) {
+      const m = (currentMonth + i) % 12;
+      const y = currentYear + Math.floor((currentMonth + i) / 12);
+      festivals.push(...mockFestivals(y, m));
+    }
+  }
+
+  // Group major festivals by month (skip recurring like ekadashi/pradosham/purnima/amavasya/sankashti)
+  const recurring = new Set(['ekadashi', 'pradosh-vrat', 'purnima', 'amavasya', 'sankashti-chaturthi']);
+  const byMonth = {};
+  for (const f of festivals) {
+    if (recurring.has(f.rule_id)) continue;
+    const key = f.date.slice(0, 7); // YYYY-MM
+    if (!byMonth[key]) byMonth[key] = [];
+    // dedup
+    if (!byMonth[key].some(x => x.rule_id === f.rule_id && x.date === f.date)) {
+      byMonth[key].push(f);
+    }
+  }
+
+  // Render 24 months in a grid
+  let months = '';
+  for (let i = 0; i < 24; i++) {
+    const m = (currentMonth + i) % 12;
+    const y = currentYear + Math.floor((currentMonth + i) / 12);
+    const key = `${y}-${String(m + 1).padStart(2, '0')}`;
+    const fests = byMonth[key] || [];
+    const now = new Date();
+    const isCurrent = y === now.getFullYear() && m === now.getMonth();
+
+    months += `
+      <div class="year-month-card ${isCurrent ? 'current' : ''}" onclick="window._yearMonthClick(${y}, ${m})">
+        <div class="year-month-header">${monthNames[m]} ${y}</div>
+        <div class="year-month-festivals">
+          ${fests.length > 0 ? fests.slice(0, 4).map(f => `
+            <div class="year-festival-item">
+              <span class="year-festival-dot" style="background: var(--${f.festival_type?.includes('Major') ? 'major-festival' : f.festival_type?.includes('Solar') ? 'solar' : 'recurring'})"></span>
+              <span class="year-festival-name">${f.name}</span>
+              <span class="year-festival-date">${parseInt(f.date.slice(8))}</span>
+            </div>
+          `).join('') : '<div style="color:var(--text-muted);font-size:11px;">No major festivals</div>'}
+          ${fests.length > 4 ? `<div style="color:var(--text-muted);font-size:11px;">+${fests.length - 4} more</div>` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  container.innerHTML = `
+    <div class="calendar-header">
+      <button class="calendar-nav-btn" onclick="window._yearNavPrev()">&larr;</button>
+      <div>
+        <div class="calendar-month-title">24-Month View</div>
+        <div style="font-size: 12px; color: var(--text-secondary); text-align: center;">
+          ${monthNames[currentMonth]} ${currentYear} &ndash; ${monthNames[(currentMonth + 23) % 12]} ${currentYear + Math.floor((currentMonth + 23) / 12)}
+        </div>
+      </div>
+      <button class="calendar-nav-btn" onclick="window._yearNavNext()">&rarr;</button>
+    </div>
+    <div style="text-align: center; margin-bottom: 12px;">
+      <button class="cal-export-btn" onclick="window._toggleYearView()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="10" height="10" rx="1"/><path d="M3 8h10M8 4v10"/></svg>
+        Month View
+      </button>
+    </div>
+    <div class="year-grid">${months}</div>
+  `;
+}
+
+window._yearMonthClick = function(y, m) {
+  currentYear = y;
+  currentMonth = m;
+  yearViewActive = false;
+  renderCalendar(window.app);
+};
+
+window._yearNavPrev = function() {
+  currentYear--;
+  renderCalendar(window.app);
+};
+
+window._yearNavNext = function() {
+  currentYear++;
+  renderCalendar(window.app);
 };
 
 function mockPanchangRange(start, end) {

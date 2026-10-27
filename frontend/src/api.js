@@ -114,10 +114,10 @@ export async function assignHousehold(userId, householdId) {
 }
 
 // Guide
-export async function sendGuideMessage(message, conversationId) {
+export async function sendGuideMessage(message, conversationId, depth) {
   return apiFetch('/guide/chat', {
     method: 'POST',
-    body: JSON.stringify({ message, conversationId }),
+    body: JSON.stringify({ message, conversationId, depth }),
   });
 }
 

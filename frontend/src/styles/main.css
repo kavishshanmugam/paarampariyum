@@ -1584,6 +1584,69 @@ body {
   outline: none;
 }
 
+/* === Guide Depth Selector === */
+.guide-depth-selector {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  margin-top: 8px;
+}
+.depth-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 3px 12px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.depth-btn:hover { border-color: var(--primary); }
+.depth-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* === Year View === */
+.year-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 0 4px;
+}
+.year-month-card {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: border-color 0.15s;
+}
+.year-month-card:hover { border-color: var(--primary); }
+.year-month-card.current { border-color: var(--primary); background: rgba(183,110,42,0.05); }
+.year-month-header {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+.year-month-festivals { display: flex; flex-direction: column; gap: 3px; }
+.year-festival-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.year-festival-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.year-festival-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.year-festival-date { color: var(--text-muted); font-size: 10px; }
+
 /* === Mobile === */
 @media (max-width: 400px) {
   .calendar-day {

@@ -17,6 +17,10 @@ import { sendGuideMessage, flagQuestion, getToken } from './api.js';
 const messages = [];
 let conversationId = null;
 
+function getGuideDepth() {
+  return localStorage.getItem('parampara-guide-depth') || 'standard';
+}
+
 // Client-side content index for offline fallback
 let contentIndex = null;
 
@@ -203,10 +207,16 @@ export function renderGuide(app) {
 
   const useAi = app.backendAvailable && getToken();
 
+  const depth = getGuideDepth();
   container.innerHTML = `
     <div class="guide-header">
       <div class="guide-title">Saathi</div>
       <div class="guide-subtitle">${useAi ? 'AI-powered companion for Hindu traditions' : 'Your companion for understanding Hindu traditions'}</div>
+      <div class="guide-depth-selector">
+        <button class="depth-btn ${depth === 'simple' ? 'active' : ''}" onclick="window._setGuideDepth('simple')" title="Short, simple answers">Simple</button>
+        <button class="depth-btn ${depth === 'standard' ? 'active' : ''}" onclick="window._setGuideDepth('standard')" title="Balanced answers with sources">Standard</button>
+        <button class="depth-btn ${depth === 'scholarly' ? 'active' : ''}" onclick="window._setGuideDepth('scholarly')" title="Detailed answers with citations">Scholarly</button>
+      </div>
     </div>
 
     <div class="chat-messages" id="chat-messages">
@@ -311,7 +321,7 @@ if (typeof window !== 'undefined') {
 
           if (useAi) {
             // Use backend AI
-            const result = await sendGuideMessage(text, conversationId);
+            const result = await sendGuideMessage(text, conversationId, getGuideDepth());
             conversationId = result.conversationId;
             response = formatAiResponse(result.reply);
           } else {
@@ -347,6 +357,14 @@ if (typeof window !== 'undefined') {
             Sorry, I couldn't process that question. Please try again.
           </div>`;
         }
+      };
+
+      // Depth selector handler
+      window._setGuideDepth = function(d) {
+        localStorage.setItem('parampara-guide-depth', d);
+        document.querySelectorAll('.depth-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === d);
+        });
       };
 
       // Flag question handler
