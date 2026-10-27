@@ -73,7 +73,12 @@ class ParamparaApp {
       <!-- Top bar -->
       <header class="top-bar">
         <h1 class="app-title">Parampara</h1>
-        <div class="user-badge">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="settings-btn" onclick="app.openSearch()" aria-label="Search">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="9" cy="9" r="6"/><path d="M14 14l4 4"/>
+            </svg>
+          </button>
           ${this.user ? `
             <div class="user-avatar" onclick="app.showSettings()" title="${this.user.name}">${this.user.name.charAt(0).toUpperCase()}</div>
           ` : `
@@ -119,10 +124,9 @@ class ParamparaApp {
       </nav>
     `;
 
-    // Apply large type setting
-    if (this.profile.largeType) {
-      document.body.classList.add('large-type');
-    }
+    // Apply settings
+    if (this.profile.largeType) document.body.classList.add('large-type');
+    this.applyTheme();
 
     // Navigate to today view
     this.navigate('today');
@@ -301,6 +305,15 @@ class ParamparaApp {
           </label>
         </div>
 
+        <div class="settings-group">
+          <label class="settings-label">Appearance</label>
+          <select id="setting-theme" class="settings-select">
+            <option value="auto" ${(this.profile.theme || 'auto') === 'auto' ? 'selected' : ''}>System default</option>
+            <option value="light" ${this.profile.theme === 'light' ? 'selected' : ''}>Light</option>
+            <option value="dark" ${this.profile.theme === 'dark' ? 'selected' : ''}>Dark</option>
+          </select>
+        </div>
+
         <button class="settings-save-btn" onclick="app.saveSettings()">Save</button>
 
         <button class="settings-save-btn" style="margin-top:12px; background: var(--text-secondary);" onclick="app.askMyFamily()">Ask My Family (shareable questions)</button>
@@ -324,13 +337,22 @@ class ParamparaApp {
     this.profile.monthSystem = document.getElementById('setting-month-system').value;
     this.profile.sect = document.getElementById('setting-sect').value;
     this.profile.largeType = document.getElementById('setting-large-type').checked;
+    this.profile.theme = document.getElementById('setting-theme').value;
     this.saveProfile();
 
     document.body.classList.toggle('large-type', this.profile.largeType);
+    this.applyTheme();
     document.querySelector('.settings-modal')?.remove();
 
     // Re-render current view with new settings
     this.navigate(this.currentView);
+  }
+
+  applyTheme() {
+    const theme = this.profile.theme || 'auto';
+    document.documentElement.classList.remove('dark-mode', 'light-mode');
+    if (theme === 'dark') document.documentElement.classList.add('dark-mode');
+    else if (theme === 'light') document.documentElement.classList.add('light-mode');
   }
 
   async handleLogout() {
@@ -509,6 +531,80 @@ class ParamparaApp {
     } catch (err) {
       alert('Could not export: ' + err.message);
     }
+  }
+
+  openSearch() {
+    document.querySelector('.search-overlay')?.remove();
+    const pageIds = [
+      'naraka-chaturdashi', 'diwali-lakshmi-puja', 'ekadashi', 'pradosh-vrat',
+      'sankashti-chaturthi', 'purnima', 'amavasya', 'maha-shivaratri', 'ram-navami',
+      'ganesh-chaturthi', 'pongal', 'onam', 'ugadi', 'navaratri-golu',
+      'karthigai-deepam', 'thaipusam', 'skanda-shashthi', 'varalakshmi-vratam',
+      'aadi-perukku', 'ayyappa-mandalam',
+    ];
+
+    const overlay = document.createElement('div');
+    overlay.className = 'search-overlay';
+    overlay.innerHTML = `
+      <div class="search-box">
+        <input type="text" class="search-input" placeholder="Search festivals, traditions..." autofocus id="search-input">
+        <button onclick="document.querySelector('.search-overlay').remove()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-muted);padding:8px;">&times;</button>
+      </div>
+      <div class="search-results" id="search-results">
+        <div style="color:var(--text-muted);font-size:13px;padding:12px;">Type to search across all observance pages...</div>
+      </div>
+    `;
+    document.getElementById('app').appendChild(overlay);
+
+    // Build a simple search index from page IDs and names
+    const nameMap = {
+      'naraka-chaturdashi': 'Deepavali (Naraka Chaturdashi)',
+      'diwali-lakshmi-puja': 'Deepavali Lakshmi Puja',
+      'ekadashi': 'Ekadashi', 'pradosh-vrat': 'Pradosham',
+      'sankashti-chaturthi': 'Sankashti Chaturthi',
+      'purnima': 'Purnima', 'amavasya': 'Amavasya',
+      'maha-shivaratri': 'Maha Shivaratri', 'ram-navami': 'Sri Rama Navami',
+      'ganesh-chaturthi': 'Vinayagar Chaturthi', 'pongal': 'Pongal',
+      'onam': 'Onam', 'ugadi': 'Ugadi / Puthandu / Vishu',
+      'navaratri-golu': 'Navaratri Golu', 'karthigai-deepam': 'Karthigai Deepam',
+      'thaipusam': 'Thaipusam', 'skanda-shashthi': 'Skanda Shashthi',
+      'varalakshmi-vratam': 'Varalakshmi Vratam',
+      'aadi-perukku': 'Aadi Perukku', 'ayyappa-mandalam': 'Ayyappa Mandalam',
+    };
+
+    const input = overlay.querySelector('#search-input');
+    const resultsEl = overlay.querySelector('#search-results');
+
+    input.addEventListener('input', () => {
+      const q = input.value.trim().toLowerCase();
+      if (q.length < 2) {
+        resultsEl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:12px;">Type to search...</div>';
+        return;
+      }
+      const matches = pageIds.filter(id => {
+        const name = (nameMap[id] || id).toLowerCase();
+        return name.includes(q) || id.includes(q);
+      });
+      if (matches.length === 0) {
+        resultsEl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:12px;">No matches. Try the Guide for questions.</div>';
+        return;
+      }
+      resultsEl.innerHTML = matches.map(id => `
+        <div class="search-result-item" onclick="app.openEventPage('${id}', '${(nameMap[id] || id).replace(/'/g, "\\'")}'); document.querySelector('.search-overlay')?.remove();">
+          <div class="festival-dot ${id.includes('ekadashi') || id.includes('pradosh') || id.includes('purnima') || id.includes('amavasya') || id.includes('sankashti') ? 'recurring' : 'major'}"></div>
+          <span>${nameMap[id] || id}</span>
+        </div>
+      `).join('');
+    });
+
+    // Close on Escape
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') overlay.remove();
+    });
+    // Close on click outside
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) overlay.remove();
+    });
   }
 
   askMyFamily() {

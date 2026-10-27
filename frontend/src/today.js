@@ -52,9 +52,14 @@ function renderTodayContent(app, today, panchang, festivals) {
   return `
     <!-- Today Header -->
     <div class="today-header">
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
+        <div class="moon-phase">${moonPhaseHtml(panchang)}</div>
+        <div>
+          <div class="today-tithi">${panchang.tithi?.name || 'Loading...'}</div>
+          <div class="today-paksha">${panchang.paksha || ''} Paksha &middot; ${panchang.lunar_month?.month || ''}</div>
+        </div>
+      </div>
       <div class="today-date">${app.formatDate(today)}</div>
-      <div class="today-tithi">${panchang.tithi?.name || 'Loading...'}</div>
-      <div class="today-paksha">${panchang.paksha || ''} Paksha &middot; ${panchang.lunar_month?.month || ''}</div>
     </div>
 
     <!-- Panchang Details -->
@@ -178,6 +183,31 @@ function renderTodayContent(app, today, panchang, festivals) {
       </button>
     </div>
   `;
+}
+
+// ponytail: CSS-only moon phase, no canvas/SVG lib
+function moonPhaseHtml(panchang) {
+  const tithiNum = panchang.tithi?.tithi_number || 8;
+  const isShukla = panchang.paksha === 'Shukla';
+  // Tithi 1-15 in shukla (waxing), 1-15 in krishna (waning)
+  // Map to illumination percentage 0-100
+  let illum;
+  if (isShukla) {
+    illum = Math.round((tithiNum / 15) * 100);
+  } else {
+    illum = Math.round(((15 - tithiNum) / 15) * 100);
+  }
+  // Simple emoji moon based on phase
+  const phases = ['🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘'];
+  let idx;
+  if (illum <= 5) idx = 0;
+  else if (illum <= 20) idx = isShukla ? 1 : 7;
+  else if (illum <= 40) idx = isShukla ? 2 : 6;
+  else if (illum <= 60) idx = isShukla ? 3 : 5;
+  else if (illum <= 80) idx = isShukla ? 3 : 5;
+  else if (illum < 95) idx = isShukla ? 4 : 4;
+  else idx = 4;
+  return `<span style="font-size:32px;line-height:1;">${phases[idx]}</span>`;
 }
 
 function formatTime(hours) {
