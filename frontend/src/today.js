@@ -16,22 +16,24 @@ export async function renderToday(app) {
   try {
     const today = app.today();
     const weekEnd = addDays(today, 7);
+    const monthEnd = addDays(today, 30);
 
     // Fetch today's panchang and upcoming festivals in parallel
-    let panchang, festivals;
+    let panchang, festivals, monthFestivals;
 
     if (app.isTauri) {
-      [panchang, festivals] = await Promise.all([
+      [panchang, festivals, monthFestivals] = await Promise.all([
         app.getPanchang(today),
         app.getFestivals(today, weekEnd),
+        app.getFestivals(addDays(today, 8), monthEnd),
       ]);
     } else {
-      // Mock data for standalone development
       panchang = mockPanchang(today);
       festivals = mockFestivals(today);
+      monthFestivals = [];
     }
 
-    container.innerHTML = renderTodayContent(app, today, panchang, festivals);
+    container.innerHTML = renderTodayContent(app, today, panchang, festivals, monthFestivals);
   } catch (err) {
     container.innerHTML = `
       <div class="info-card">
@@ -45,9 +47,13 @@ export async function renderToday(app) {
   }
 }
 
-function renderTodayContent(app, today, panchang, festivals) {
+function renderTodayContent(app, today, panchang, festivals, monthFestivals) {
   const todayFestivals = festivals.filter(f => f.date === today);
   const upcomingFestivals = festivals.filter(f => f.date > today && app.isFollowed(f.rule_id));
+  // Major festivals in the next 30 days (beyond this week)
+  const upcomingMajor = (monthFestivals || []).filter(f =>
+    app.isFollowed(f.rule_id) && f.festival_type?.includes('Major')
+  );
 
   return `
     <!-- Today Header -->
@@ -170,6 +176,25 @@ function renderTodayContent(app, today, panchang, festivals) {
       <p style="color: var(--text-muted); font-size: 14px;">No observances in the next 7 days.</p>
     </div>
     `}
+
+    <!-- Coming This Month (major only) -->
+    ${upcomingMajor.length > 0 ? `
+    <div class="info-card">
+      <h3>Coming This Month</h3>
+      ${upcomingMajor.map(f => {
+        const daysAway = Math.round((new Date(f.date + 'T00:00:00') - new Date(today + 'T00:00:00')) / 86400000);
+        return `
+        <div class="festival-item clickable" onclick="app.openEventPage('${f.rule_id}', '${f.name.replace(/'/g, "\\'")}')">
+          <div class="festival-dot ${getFestivalDotClass(f.festival_type)}"></div>
+          <div>
+            <div class="festival-name">${f.name}</div>
+            <div class="festival-date">${app.formatDate(f.date)} <span style="color:var(--primary);font-size:11px;font-weight:600;">${daysAway}d</span></div>
+          </div>
+          <svg class="festival-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l4 4-4 4"/></svg>
+        </div>`;
+      }).join('')}
+    </div>
+    ` : ''}
 
     <!-- Action Buttons -->
     <div class="today-actions">
