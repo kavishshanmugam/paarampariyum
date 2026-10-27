@@ -115,7 +115,25 @@ pub struct FestivalInstance {
     pub reason: String,
     pub variant_note: Option<String>,
     pub close_call: bool,
+    pub close_call_note: Option<String>,
     pub sequence: Option<FestivalSequence>,
+}
+
+/// Close-call threshold in minutes. If a tithi boundary falls within this
+/// many minutes of the critical time window, the festival is flagged.
+const CLOSE_CALL_MINUTES: f64 = 15.0;
+
+/// Check if a tithi boundary is within CLOSE_CALL_MINUTES of a given JD.
+/// Returns true if the tithi at (jd - 15min) or (jd + 15min) differs from the tithi at jd.
+fn is_close_call(jd: f64, expected_tithi: &TithiName) -> bool {
+    let delta = CLOSE_CALL_MINUTES / (24.0 * 60.0); // 15 min in days
+    let before = super::tithi::compute_tithi(jd - delta);
+    let after = super::tithi::compute_tithi(jd + delta);
+    before.name != *expected_tithi || after.name != *expected_tithi
+}
+
+fn close_call_note(window_name: &str) -> String {
+    format!("Close call: the tithi boundary falls within {} minutes of {}", CLOSE_CALL_MINUTES as u32, window_name)
 }
 
 /// Evaluate all festival rules for a date range and location.
@@ -200,6 +218,34 @@ pub fn evaluate_festivals(
                             .find(|v| v.sect != conventions.sect)
                             .map(|v| v.note.clone());
 
+                        // Close-call detection: check if tithi boundary is near the window time
+                        let (cc, cc_note) = {
+                            let window_jd = match must_prevail_during {
+                                TimeWindow::Sunrise => jd + (day.sunrise.unwrap_or(6.0) - tz_offset) / 24.0,
+                                TimeWindow::Pradosh => jd + (day.sunset.unwrap_or(18.5) - tz_offset) / 24.0,
+                                TimeWindow::Midday => {
+                                    let mid = (day.sunrise.unwrap_or(6.0) + day.sunset.unwrap_or(18.0)) / 2.0;
+                                    jd + (mid - tz_offset) / 24.0
+                                }
+                                TimeWindow::Midnight => jd + (24.0 - tz_offset) / 24.0,
+                                TimeWindow::Moonrise => jd + (day.moonrise.unwrap_or(day.sunrise.unwrap_or(6.0)) - tz_offset) / 24.0,
+                                TimeWindow::AnyPart => jd + (day.sunrise.unwrap_or(6.0) - tz_offset) / 24.0,
+                            };
+                            let window_name = match must_prevail_during {
+                                TimeWindow::Sunrise => "sunrise",
+                                TimeWindow::Pradosh => "pradosh (evening)",
+                                TimeWindow::Midday => "midday",
+                                TimeWindow::Midnight => "midnight",
+                                TimeWindow::Moonrise => "moonrise",
+                                TimeWindow::AnyPart => "sunrise",
+                            };
+                            if is_close_call(window_jd, tithi) {
+                                (true, Some(close_call_note(window_name)))
+                            } else {
+                                (false, None)
+                            }
+                        };
+
                         instances.push(FestivalInstance {
                             rule_id: rule.id.clone(),
                             name: rule.name.clone(),
@@ -208,7 +254,8 @@ pub fn evaluate_festivals(
                             festival_type: rule.festival_type.clone(),
                             reason,
                             variant_note,
-                            close_call: false,
+                            close_call: cc,
+                            close_call_note: cc_note,
                             sequence: rule.sequence.clone(),
                         });
                     }
@@ -237,6 +284,7 @@ pub fn evaluate_festivals(
                             reason: description.clone(),
                             variant_note: None,
                             close_call: false,
+                            close_call_note: None,
                             sequence: rule.sequence.clone(),
                         });
                     }
@@ -259,6 +307,7 @@ pub fn evaluate_festivals(
                             reason: description.clone(),
                             variant_note: None,
                             close_call: false,
+                            close_call_note: None,
                             sequence: rule.sequence.clone(),
                         });
                     }
@@ -290,6 +339,7 @@ pub fn evaluate_festivals(
                                 reason: description.clone(),
                                 variant_note: None,
                                 close_call: false,
+                                close_call_note: None,
                                 sequence: rule.sequence.clone(),
                             });
                         }
@@ -327,6 +377,25 @@ pub fn evaluate_festivals(
                             .replace("{tithi}", tithi.name())
                             .replace("{month}", day.lunar_month.month.name());
 
+                        // Close-call detection for recurring rules
+                        let (cc, cc_note) = {
+                            let window_jd = match must_prevail_during {
+                                TimeWindow::Pradosh => jd + (day.sunset.unwrap_or(18.5) - tz_offset) / 24.0,
+                                TimeWindow::Moonrise => jd + (day.moonrise.unwrap_or(day.sunrise.unwrap_or(6.0)) - tz_offset) / 24.0,
+                                _ => jd + (day.sunrise.unwrap_or(6.0) - tz_offset) / 24.0,
+                            };
+                            let window_name = match must_prevail_during {
+                                TimeWindow::Pradosh => "pradosh (evening)",
+                                TimeWindow::Moonrise => "moonrise",
+                                _ => "sunrise",
+                            };
+                            if is_close_call(window_jd, tithi) {
+                                (true, Some(close_call_note(window_name)))
+                            } else {
+                                (false, None)
+                            }
+                        };
+
                         instances.push(FestivalInstance {
                             rule_id: rule.id.clone(),
                             name: rule.name.clone(),
@@ -335,7 +404,8 @@ pub fn evaluate_festivals(
                             festival_type: rule.festival_type.clone(),
                             reason,
                             variant_note: None,
-                            close_call: false,
+                            close_call: cc,
+                            close_call_note: cc_note,
                             sequence: rule.sequence.clone(),
                         });
                     }

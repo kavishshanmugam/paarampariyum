@@ -11,7 +11,8 @@ import { renderCalendar } from './calendar.js';
 import { renderGuide } from './guide.js';
 import { renderEventPage } from './event.js';
 import { renderAuth } from './auth.js';
-import { getToken, getUser, logout as apiLogout, checkBackend, getAllNotes } from './api.js';
+import { renderElderWisdom } from './elder.js';
+import { getToken, getUser, logout as apiLogout, checkBackend, getAllNotes, listUsers, assignHousehold } from './api.js';
 
 class ParamparaApp {
   constructor() {
@@ -239,6 +240,16 @@ class ParamparaApp {
     this.navigate('guide');
   }
 
+  openElderWisdom() {
+    document.querySelector('.settings-modal')?.remove();
+    this._previousView = this.currentView;
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+    const chatInput = document.querySelector('.chat-input-area');
+    if (chatInput) chatInput.classList.remove('active');
+    renderElderWisdom(this);
+  }
+
   showSettings() {
     // Remove existing modal
     document.querySelector('.settings-modal')?.remove();
@@ -293,7 +304,11 @@ class ParamparaApp {
         <button class="settings-save-btn" onclick="app.saveSettings()">Save</button>
 
         ${this.user ? `
+        <button class="settings-save-btn" style="margin-top:12px; background: var(--warning, #d69e2e);" onclick="app.openElderWisdom()">Record Elder Wisdom</button>
         <button class="settings-save-btn" style="margin-top:12px; background: var(--recurring);" onclick="app.exportFamilyBook()">Export Family Book</button>
+        ${this.user.role === 'admin' ? `
+        <button class="settings-save-btn" style="margin-top:12px; background: var(--regional);" onclick="app.openAdminPanel()">Manage Households</button>
+        ` : ''}
         <button class="auth-link-btn" style="margin-top:12px; color: var(--error);" onclick="app.handleLogout()">Sign out</button>
         ` : this.backendAvailable ? `
         <button class="auth-link-btn" style="margin-top:12px;" onclick="app.showLogin()">Sign in</button>
@@ -334,6 +349,77 @@ class ParamparaApp {
     });
   }
 
+  async openAdminPanel() {
+    document.querySelector('.settings-modal')?.remove();
+
+    const modal = document.createElement('div');
+    modal.className = 'settings-modal';
+    modal.innerHTML = `
+      <div class="settings-content">
+        <div class="settings-header">
+          <h2>Manage Households</h2>
+          <button onclick="this.closest('.settings-modal').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-muted);">&times;</button>
+        </div>
+        <div id="admin-panel-content"><div class="loading"><div class="loading-spinner"></div>Loading users...</div></div>
+      </div>
+    `;
+    document.getElementById('app').appendChild(modal);
+
+    try {
+      const users = await listUsers();
+      const panel = document.getElementById('admin-panel-content');
+      if (!panel) return;
+
+      // Group by household
+      const households = {};
+      const unassigned = [];
+      for (const u of users) {
+        if (u.household_id) {
+          if (!households[u.household_id]) households[u.household_id] = [];
+          households[u.household_id].push(u);
+        } else {
+          unassigned.push(u);
+        }
+      }
+
+      panel.innerHTML = `
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">
+          Assign users to households so they can share family notes. Enter a household name (e.g. "Shanmugam Family") for each user.
+        </p>
+        ${users.map(u => `
+          <div class="admin-user-row">
+            <div>
+              <strong>${u.name}</strong>
+              <div style="font-size:12px;color:var(--text-secondary);">${u.email}${u.role === 'admin' ? ' (admin)' : ''}</div>
+            </div>
+            <input type="text" class="admin-household-input" data-user-id="${u.id}"
+              value="${u.household_id || ''}" placeholder="Household name...">
+          </div>
+        `).join('')}
+        <button class="settings-save-btn" style="margin-top:12px;" onclick="app.saveHouseholds()">Save Households</button>
+      `;
+    } catch (err) {
+      const panel = document.getElementById('admin-panel-content');
+      if (panel) panel.innerHTML = `<p style="color:var(--error);">Failed to load users: ${err.message}</p>`;
+    }
+  }
+
+  async saveHouseholds() {
+    const inputs = document.querySelectorAll('.admin-household-input');
+    let saved = 0;
+    for (const input of inputs) {
+      const userId = input.dataset.userId;
+      const householdId = input.value.trim();
+      if (householdId) {
+        try {
+          await assignHousehold(userId, householdId);
+          saved++;
+        } catch { /* skip errors */ }
+      }
+    }
+    alert(`Saved ${saved} household assignments.`);
+  }
+
   async exportFamilyBook() {
     document.querySelector('.settings-modal')?.remove();
     try {
@@ -365,20 +451,45 @@ class ParamparaApp {
         lines.push(`## ${name}`);
         lines.push(``);
 
-        for (const note of observanceNotes) {
-          const date = new Date(note.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
-          if (note.note_type === 'text') {
-            lines.push(`${note.content}`);
-            lines.push(``);
-            lines.push(`*-- ${date}${note.pinned ? ' (pinned)' : ''}*`);
-          } else if (note.note_type === 'photo') {
-            lines.push(`[Photo: ${note.content}]`);
-            lines.push(`*-- ${date}*`);
-          } else if (note.note_type === 'voice') {
-            lines.push(`[Voice note: ${note.content}]`);
-            lines.push(`*-- ${date}*`);
-          }
+        // Split by scope
+        const ourWay = observanceNotes.filter(n => !n.scope || n.scope === 'our_way');
+        const thisYear = observanceNotes.filter(n => n.scope === 'this_year');
+
+        if (ourWay.length > 0) {
+          lines.push(`### Our Way`);
           lines.push(``);
+          for (const note of ourWay) {
+            const date = new Date(note.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
+            const author = note.author_name ? `${note.author_name}, ` : '';
+            if (note.note_type === 'text') {
+              lines.push(`${note.content}`);
+              lines.push(``);
+              lines.push(`*-- ${author}${date}${note.pinned ? ' (pinned)' : ''}*`);
+            } else if (note.note_type === 'photo') {
+              lines.push(`[Photo: ${note.content}]`);
+              lines.push(`*-- ${author}${date}*`);
+            } else if (note.note_type === 'voice') {
+              lines.push(`[Voice note: ${note.content}]`);
+              lines.push(`*-- ${author}${date}*`);
+            }
+            lines.push(``);
+          }
+        }
+
+        if (thisYear.length > 0) {
+          lines.push(`### This Year`);
+          lines.push(``);
+          for (const note of thisYear) {
+            const date = new Date(note.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
+            const year = note.occurrence_year ? `(${note.occurrence_year}) ` : '';
+            if (note.note_type === 'text') {
+              lines.push(`${year}${note.content}`);
+            } else {
+              lines.push(`${year}[${note.note_type}: ${note.content}]`);
+            }
+            lines.push(`*-- ${date}*`);
+            lines.push(``);
+          }
         }
         lines.push(`---`);
         lines.push(``);

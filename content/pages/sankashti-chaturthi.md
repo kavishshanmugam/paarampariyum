@@ -12,6 +12,10 @@ rule:
   paksha: krishna
   tithi: chaturthi
   must_prevail_during: moonrise
+elder_prompts:
+  - "Did your family wait for the moon to rise before breaking the Sankashti fast? How late did it get?"
+  - "Was there a particular Ganesha temple your family visited on Sankashti Chaturthi?"
+  - "Did your family read the Sankashti Vrat Katha? Who usually read it aloud?"
 review:
   author: "Parampara team"
   status: draft

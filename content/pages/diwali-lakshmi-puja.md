@@ -21,6 +21,10 @@ rule:
 related:
   - "Jain: Mahavira Nirvana"
   - "Sikh: Bandi Chhor Divas"
+elder_prompts:
+  - "Did your family do a separate Lakshmi Puja on this evening, or was the main celebration the morning before?"
+  - "How did your family arrange the lamps for Deepavali evening -- was there a pattern or a favourite spot?"
+  - "Did your family have a tradition of settling accounts or starting a new ledger around Deepavali?"
 review:
   author: "Parampara team"
   status: draft

@@ -1,7 +1,7 @@
 //! Sunrise, sunset, and moonrise calculations for any coordinates.
 //!
-//! Based on Meeus, "Astronomical Algorithms", chapters 15 and 25.
-//! The Hindu day runs from sunrise to sunrise, so this is foundational.
+//! Uses the NOAA Solar Calculator algorithm, which is well-tested
+//! and gives results within ~1 minute of the actual time.
 
 use std::f64::consts::PI;
 use super::astronomy::*;
@@ -9,139 +9,128 @@ use super::astronomy::*;
 const DEG_TO_RAD: f64 = PI / 180.0;
 const RAD_TO_DEG: f64 = 180.0 / PI;
 
-/// Standard altitude for sunrise/sunset: -0.8333 degrees
-/// (accounts for refraction and the Sun's angular radius)
-const SUNRISE_ALTITUDE: f64 = -0.8333;
-
 /// Calculate sunrise for a given JD (at 0h UT), latitude, longitude.
 /// Returns hours from midnight in local time, or None if no sunrise.
 pub fn calculate_sunrise(jd: f64, lat: f64, lon: f64, tz_offset: f64) -> Option<f64> {
-    calculate_sun_event(jd, lat, lon, tz_offset, true)
+    sun_rise_set(jd, lat, lon, tz_offset, true)
 }
 
 /// Calculate sunset for a given JD (at 0h UT), latitude, longitude.
 /// Returns hours from midnight in local time, or None if no sunset.
 pub fn calculate_sunset(jd: f64, lat: f64, lon: f64, tz_offset: f64) -> Option<f64> {
-    calculate_sun_event(jd, lat, lon, tz_offset, false)
+    sun_rise_set(jd, lat, lon, tz_offset, false)
 }
 
-/// Core sunrise/sunset calculation using the hour angle method.
-fn calculate_sun_event(jd: f64, lat: f64, lon: f64, tz_offset: f64, is_rise: bool) -> Option<f64> {
-    // Start with transit time, then iterate
-    let n = jd - 2451545.0 + 0.5; // days from J2000 noon
-    let j_star = n - lon / 360.0; // approximate solar noon (days)
+/// NOAA-based sunrise/sunset calculation.
+///
+/// JD should be for 0h UT of the desired date.
+/// Returns local time in fractional hours.
+fn sun_rise_set(jd: f64, lat: f64, lon: f64, tz_offset: f64, is_rise: bool) -> Option<f64> {
+    // Use noon UT as initial approximation for declination and EoT
+    let jd_noon = jd + 0.5; // noon UT
+    let t = (jd_noon - 2451545.0) / 36525.0;
 
-    // Solar noon in JD
-    let t = j_star / 36525.0;
-    let eot = equation_of_time(jd);
+    // Sun's mean longitude
+    let l0 = normalize_degrees(280.46646 + 36000.76983 * t + 0.0003032 * t * t);
 
-    // Solar noon in local hours
-    let noon_ut = 12.0 - eot / 60.0 - lon / 15.0;
-    let noon_local = noon_ut + tz_offset;
+    // Sun's mean anomaly
+    let m = normalize_degrees(357.52911 + 35999.05029 * t - 0.0001537 * t * t);
+    let m_rad = m * DEG_TO_RAD;
 
-    // Sun's declination at noon
-    let jd_noon = jd + noon_ut / 24.0;
-    let dec = sun_declination(jd_noon) * DEG_TO_RAD;
+    // Equation of center
+    let c = (1.9146 - 0.004817 * t - 0.000014 * t * t) * m_rad.sin()
+        + (0.019993 - 0.000101 * t) * (2.0 * m_rad).sin()
+        + 0.00029 * (3.0 * m_rad).sin();
+
+    // Sun's true longitude
+    let sun_lon = normalize_degrees(l0 + c);
+
+    // Sun's apparent longitude
+    let omega = 125.04 - 1934.136 * t;
+    let sun_app_lon = sun_lon - 0.00569 - 0.00478 * (omega * DEG_TO_RAD).sin();
+
+    // Obliquity of the ecliptic
+    let obliquity = 23.4393 - 0.01300 * t;
+    let obliquity_corr = obliquity + 0.00256 * (omega * DEG_TO_RAD).cos();
+
+    // Sun's declination
+    let dec = ((obliquity_corr * DEG_TO_RAD).sin() * (sun_app_lon * DEG_TO_RAD).sin())
+        .asin() * RAD_TO_DEG;
+
+    // Equation of Time (minutes)
+    let y = ((obliquity_corr / 2.0) * DEG_TO_RAD).tan().powi(2);
+    let l0_rad = l0 * DEG_TO_RAD;
+    let eot = 4.0 * RAD_TO_DEG * (
+        y * (2.0 * l0_rad).sin()
+        - 2.0 * 0.016709 * m_rad.sin() // eccentricity approximation
+        + 4.0 * 0.016709 * y * m_rad.sin() * (2.0 * l0_rad).cos()
+        - 0.5 * y * y * (4.0 * l0_rad).sin()
+        - 1.25 * 0.016709 * 0.016709 * (2.0 * m_rad).sin()
+    );
+
+    // Hour angle for sunrise/sunset
     let lat_rad = lat * DEG_TO_RAD;
+    let dec_rad = dec * DEG_TO_RAD;
 
-    // Hour angle for the desired altitude
-    let cos_h = (SUNRISE_ALTITUDE.to_radians().sin() - lat_rad.sin() * dec.sin())
-        / (lat_rad.cos() * dec.cos());
+    // Standard altitude: -0.8333 degrees (includes refraction)
+    let zenith = 90.8333 * DEG_TO_RAD;
 
-    // Check if sun rises/sets at this latitude on this day
-    if cos_h > 1.0 {
-        return None; // Sun never rises (perpetual night)
+    let cos_ha = (zenith.cos() - lat_rad.sin() * dec_rad.sin())
+        / (lat_rad.cos() * dec_rad.cos());
+
+    if cos_ha > 1.0 {
+        return None; // Sun doesn't rise
     }
-    if cos_h < -1.0 {
-        return None; // Sun never sets (midnight sun)
+    if cos_ha < -1.0 {
+        return None; // Sun doesn't set
     }
 
-    let h = cos_h.acos() * RAD_TO_DEG / 15.0; // hour angle in hours
+    let ha = cos_ha.acos() * RAD_TO_DEG; // degrees
 
-    let event = if is_rise {
-        noon_local - h
+    // Solar noon in minutes from midnight (local)
+    let solar_noon_min = 720.0 - 4.0 * lon - eot + tz_offset * 60.0;
+
+    // Sunrise/sunset time in minutes from midnight
+    let event_min = if is_rise {
+        solar_noon_min - ha * 4.0
     } else {
-        noon_local + h
+        solar_noon_min + ha * 4.0
     };
 
-    // Iterative refinement (one pass)
-    let jd_event = jd + (event - tz_offset) / 24.0;
-    let dec2 = sun_declination(jd_event) * DEG_TO_RAD;
-    let eot2 = equation_of_time(jd_event);
-
-    let noon_ut2 = 12.0 - eot2 / 60.0 - lon / 15.0;
-    let noon_local2 = noon_ut2 + tz_offset;
-
-    let cos_h2 = (SUNRISE_ALTITUDE.to_radians().sin() - lat_rad.sin() * dec2.sin())
-        / (lat_rad.cos() * dec2.cos());
-
-    if cos_h2.abs() > 1.0 {
-        return Some(event); // Fall back to first approximation
-    }
-
-    let h2 = cos_h2.acos() * RAD_TO_DEG / 15.0;
-
-    let refined = if is_rise {
-        noon_local2 - h2
-    } else {
-        noon_local2 + h2
-    };
-
-    Some(refined)
+    Some(event_min / 60.0) // Convert to hours
 }
 
 /// Calculate moonrise for a given JD, latitude, longitude.
 /// Returns hours from midnight in local time, or None if no moonrise on this day.
-///
-/// Moonrise is more complex than sunrise because the Moon moves ~13 degrees/day,
-/// so we need to interpolate its position.
 pub fn calculate_moonrise(jd: f64, lat: f64, lon: f64, tz_offset: f64) -> Option<f64> {
     let lat_rad = lat * DEG_TO_RAD;
-    // Moon's horizontal parallax correction: about -0.7275 degrees typical
-    let moon_altitude = 0.125; // degrees (accounts for parallax and refraction)
+    let moon_altitude_threshold = 0.125; // degrees, accounts for parallax and refraction
 
-    // Search for moonrise by checking hour by hour
-    let mut prev_ha_below = true;
+    // Search for moonrise by checking every 30 minutes
+    let mut prev_alt = -999.0;
     let mut best_time: Option<f64> = None;
 
-    for hour in 0..24 {
-        let h = hour as f64;
+    for half_hour in 0..48 {
+        let h = half_hour as f64 * 0.5;
         let jd_h = jd + (h - tz_offset) / 24.0;
 
-        // Moon's position
         let moon_dec = moon_declination(jd_h) * DEG_TO_RAD;
-        let moon_ra = moon_right_ascension(jd_h); // hours
-        let lst = gmst(jd_h) + lon / 15.0; // local sidereal time in hours
-        let ha = (lst - moon_ra) * 15.0 * DEG_TO_RAD; // hour angle in radians
+        let moon_ra = moon_right_ascension(jd_h);
+        let lst = gmst(jd_h) + lon / 15.0;
+        let ha = (lst - moon_ra) * 15.0 * DEG_TO_RAD;
 
-        // Moon's altitude
         let alt = (lat_rad.sin() * moon_dec.sin()
             + lat_rad.cos() * moon_dec.cos() * ha.cos())
         .asin()
             * RAD_TO_DEG;
 
-        let is_below = alt < moon_altitude;
-
-        if !is_below && prev_ha_below && hour > 0 {
-            // Moonrise between this hour and the previous
-            // Linear interpolation for the crossing time
-            let jd_prev = jd + ((h - 1.0) - tz_offset) / 24.0;
-            let moon_dec_prev = moon_declination(jd_prev) * DEG_TO_RAD;
-            let moon_ra_prev = moon_right_ascension(jd_prev);
-            let lst_prev = gmst(jd_prev) + lon / 15.0;
-            let ha_prev = (lst_prev - moon_ra_prev) * 15.0 * DEG_TO_RAD;
-            let alt_prev = (lat_rad.sin() * moon_dec_prev.sin()
-                + lat_rad.cos() * moon_dec_prev.cos() * ha_prev.cos())
-            .asin()
-                * RAD_TO_DEG;
-
-            // Interpolate
-            let frac = (moon_altitude - alt_prev) / (alt - alt_prev);
-            best_time = Some(h - 1.0 + frac);
+        if prev_alt < moon_altitude_threshold && alt >= moon_altitude_threshold && half_hour > 0 {
+            let frac = (moon_altitude_threshold - prev_alt) / (alt - prev_alt);
+            best_time = Some(h - 0.5 + frac * 0.5);
             break;
         }
 
-        prev_ha_below = is_below;
+        prev_alt = alt;
     }
 
     best_time
@@ -160,6 +149,7 @@ mod tests {
         let sunrise = calculate_sunrise(jd, -37.8136, 144.9631, 11.0);
         assert!(sunrise.is_some(), "Melbourne should have sunrise in October");
         let sr = sunrise.unwrap();
+        println!("Melbourne sunrise: {}:{:02}", sr as u32, ((sr - (sr as u32) as f64) * 60.0) as u32);
         assert!(sr > 5.5 && sr < 7.5, "Melbourne sunrise in Oct should be ~6:20, got {}:{:02}",
             sr as u32, ((sr - (sr as u32) as f64) * 60.0) as u32);
     }
@@ -171,7 +161,7 @@ mod tests {
         let sunset = calculate_sunset(jd, -37.8136, 144.9631, 11.0);
         assert!(sunset.is_some());
         let ss = sunset.unwrap();
-        // Expected sunset around 19:20 AEDT
+        println!("Melbourne sunset: {}:{:02}", ss as u32, ((ss - (ss as u32) as f64) * 60.0) as u32);
         assert!(ss > 18.5 && ss < 20.5, "Melbourne sunset in Oct should be ~19:20, got {}:{:02}",
             ss as u32, ((ss - (ss as u32) as f64) * 60.0) as u32);
     }
@@ -179,12 +169,12 @@ mod tests {
     #[test]
     fn test_delhi_sunrise_october() {
         // Delhi, Oct 15 2026 (IST, UTC+5.5)
-        // Expected sunrise around 6:15 AM IST
         let date = chrono::NaiveDate::from_ymd_opt(2026, 10, 15).unwrap();
         let jd = date_to_jd(date);
         let sunrise = calculate_sunrise(jd, 28.6139, 77.2090, 5.5);
         assert!(sunrise.is_some());
         let sr = sunrise.unwrap();
+        println!("Delhi sunrise: {}:{:02}", sr as u32, ((sr - (sr as u32) as f64) * 60.0) as u32);
         assert!(sr > 5.5 && sr < 7.0, "Delhi sunrise in Oct should be ~6:15, got {}:{:02}",
             sr as u32, ((sr - (sr as u32) as f64) * 60.0) as u32);
     }

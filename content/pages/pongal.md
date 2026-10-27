@@ -18,6 +18,10 @@ related:
   - "Makar Sankranti (North India)"
   - "Lohri (Punjab, night before)"
   - "Bihu (Assam)"
+elder_prompts:
+  - "What did your family cook in the Pongal pot? Was the recipe different from the neighbours'?"
+  - "Did your family do anything special for Mattu Pongal or Kaanum Pongal?"
+  - "What is your earliest memory of Pongal morning?"
 review:
   author: "Parampara team"
   status: draft

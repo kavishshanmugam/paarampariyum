@@ -131,12 +131,22 @@ function executeTool(toolName, input, userId, db) {
       return results.slice(0, 5);
     }
     case 'get_family_notes': {
+      const user = db.prepare('SELECT household_id FROM users WHERE id = ?').get(userId);
+      const householdId = user?.household_id || '__none__';
       const notes = db.prepare(
-        `SELECT content, note_type, pinned, created_at FROM family_notes
-         WHERE user_id = ? AND observance_id = ? ORDER BY pinned DESC, created_at DESC`
-      ).all(userId, input.observance_id);
+        `SELECT fn.content, fn.note_type, fn.scope, fn.occurrence_year, fn.pinned, fn.created_at, u.name as author_name
+         FROM family_notes fn JOIN users u ON fn.user_id = u.id
+         WHERE fn.observance_id = ? AND (fn.user_id = ? OR (fn.visibility = 'group') OR (fn.visibility = 'household' AND fn.household_id = ?))
+         ORDER BY fn.pinned DESC, fn.created_at DESC`
+      ).all(input.observance_id, userId, householdId);
       if (notes.length === 0) return { message: 'No family notes for this observance yet.' };
-      return notes;
+      return notes.map(n => ({
+        content: n.note_type === 'text' ? n.content : `[${n.note_type} attachment]`,
+        scope: n.scope,
+        year: n.occurrence_year,
+        author: n.author_name,
+        pinned: !!n.pinned,
+      }));
     }
     case 'list_observances': {
       return Object.entries(contentPages).map(([id, page]) => ({

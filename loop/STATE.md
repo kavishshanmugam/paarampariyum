@@ -1,38 +1,26 @@
 # State - Parampara
 
-**Last updated:** 2026-10-22
+**Last updated:** 2026-10-26
 
 ## Current Phase
-v1.1 -- South Indian Content Expansion + Regional Inclusivity
+v1.2 -- Family Traditions Enhancement + Guide Integration
 
-User testing revealed content is heavily North Indian biased. Project name is Tamil ("Paarampariyum")
-but festivals, names, customs, and terminology all lean Hindi-belt. This phase fixes that.
-
-## What Works (v1.0 baseline)
+## What Works (v1.1 baseline)
 - Panchang engine: tithi, nakshatra, yoga, karana, sunrise/sunset/moonrise
-- Engine validated against Drik Panchang (Melbourne) -- all major festivals match
-- 30 engine tests passing, DST handling verified
-- 18 festival rules with TimeWindow-aware matching
-- 18 content pages with YAML frontmatter + Markdown
+- 17 South Indian-focused festival rules (all tests pass, 32 tests)
+- 18+ content pages with Tamil/Telugu/Kannada/Malayalam names
 - Frontend: Today, Calendar, Guide, Event views (Vite + vanilla JS)
-- Backend: Node.js + Express, SQLite, auth, guide AI, traditions, file uploads
-- All P0/P1/P2 features complete
-- Tauri desktop build: MSI 3.83 MB, NSIS 2.55 MB
+- Backend: Node.js + Express, SQLite, auth, guide AI, traditions CRUD
+- Family notes: text, photo, voice; pinning; family book export (Markdown)
+- All P0/P1/P2 v1.0 features + v1.1 South Indian overhaul complete
+- Compare with India, ICS export, panchang share card, weekly digest
 
-## v1.1 Scope
-1. Add 7-10 major South Indian festival content pages
-2. Add South Indian language names (Tamil, Telugu, Kannada, Malayalam) to all pages
-3. Add festival rules to engine for new festivals
-4. Update existing content pages to present South Indian perspectives prominently (not as "regional variations")
-5. Update guide system prompt and greeting for inclusivity
-6. Update frontend content index with new pages
-
-## Known Issues from Testing
-- Content reads as North Indian Hindu, not pan-Hindu
-- "Chhath Puja" included but no Pongal, Onam, Ugadi, Karthigai Deepam, Thaipusam
-- Hindi-only names in YAML frontmatter
-- Guide greeting says "Namaste" only -- should include "Vanakkam"
-- Makar Sankranti treats Pongal as a footnote, should be its own page
+## v1.2 Focus
+1. Elder prompts on event pages (ask-your-elders questions)
+2. "This year" plans vs "our way" lasting notes
+3. AI guide uses family notes as a labeled source
+4. Household model + note visibility
+5. Close-call flags in engine
 
 ## Blockers
 None.

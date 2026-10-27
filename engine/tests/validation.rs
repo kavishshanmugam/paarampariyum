@@ -27,14 +27,14 @@ fn dump_oct_nov_dec_2026_panchang() {
         "2026-11-20", "2026-11-25",
         // December 2026
         "2026-12-01", "2026-12-10", "2026-12-15", "2026-12-25",
-        // January 2027 (Makar Sankranti)
+        // January 2027 (Pongal)
         "2027-01-14", "2027-01-15",
-        // February 2027 (Vasant Panchami, Maha Shivaratri)
-        "2027-02-01", "2027-02-10", "2027-02-15", "2027-02-20",
-        // March 2027 (Holi)
-        "2027-03-01", "2027-03-10", "2027-03-15", "2027-03-20", "2027-03-28",
-        // April 2027 (Ram Navami)
-        "2027-04-01", "2027-04-05", "2027-04-10",
+        // February 2027 (Thaipusam, Maha Shivaratri)
+        "2027-02-01", "2027-02-10", "2027-02-15", "2027-02-20", "2027-02-21",
+        // March 2027
+        "2027-03-01", "2027-03-06", "2027-03-10", "2027-03-15", "2027-03-19", "2027-03-20", "2027-03-28",
+        // April 2027 (Sri Rama Navami, Puthandu)
+        "2027-04-01", "2027-04-05", "2027-04-10", "2027-04-15",
     ];
 
     println!("\n=== PANCHANG VALIDATION DATA (Melbourne) ===");
@@ -72,13 +72,17 @@ fn dump_festivals_oct2026_apr2027() {
     println!("{:<12} {:<30} {:<20} {}", "Date", "Name", "Type", "Reason");
     println!("{}", "-".repeat(110));
 
+    let mut close_calls = 0;
     for f in &festivals {
-        println!("{:<12} {:<30} {:<20} {}",
+        let cc = if f.close_call { " [CLOSE CALL]" } else { "" };
+        println!("{:<12} {:<30} {:<20} {}{}",
             f.date.format("%Y-%m-%d"),
             f.name,
             format!("{:?}", f.festival_type),
-            &f.reason[..f.reason.len().min(60)],
+            &f.reason[..f.reason.len().min(55)],
+            cc,
         );
+        if f.close_call { close_calls += 1; }
     }
-    println!("\nTotal festivals: {}", festivals.len());
+    println!("\nTotal festivals: {}, Close calls: {}", festivals.len(), close_calls);
 }

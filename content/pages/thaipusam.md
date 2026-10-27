@@ -13,6 +13,10 @@ rule:
   tithi: purnima
   must_prevail_during: sunrise
   note: "Strictly, Pushya nakshatra in Tamil month Thai. Magha Purnima is the closest lunar approximation."
+elder_prompts:
+  - "Has anyone in your family carried a kavadi or paal kudam? What prompted the vow?"
+  - "Which Murugan temple did your family visit for Thaipusam, and what was the atmosphere like?"
+  - "Did your family recite the Kanda Sashti Kavasam or Thiruppugazh during Thaipusam?"
 review:
   author: "Parampara team"
   status: draft

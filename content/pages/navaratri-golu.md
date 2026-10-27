@@ -18,6 +18,10 @@ rule:
   paksha: shukla
   tithi: pratipada
   must_prevail_during: sunrise
+elder_prompts:
+  - "Which dolls in your family's Golu collection have been passed down? Do any have a story behind them?"
+  - "Did your family have a favourite sundal recipe or a special sweet made during Navaratri?"
+  - "What was it like visiting neighbours' Golu displays -- did your family have a tradition of exchanging thamboolam?"
 review:
   author: "Parampara team"
   status: draft

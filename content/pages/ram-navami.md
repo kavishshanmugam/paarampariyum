@@ -14,6 +14,10 @@ rule:
   paksha: shukla
   tithi: navami
   must_prevail_during: midday
+elder_prompts:
+  - "Did your family read or listen to the Ramayana on Ram Navami? Which version -- Valmiki, Kambar, or Tulsidas?"
+  - "Was there a midday puja or special prasadam your family prepared for Sri Rama Navami?"
+  - "Did anyone in your family name a child after Rama, Sita, or Lakshmana? What inspired the choice?"
 review:
   author: "Parampara team"
   status: draft

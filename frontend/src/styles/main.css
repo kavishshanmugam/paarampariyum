@@ -1,6 +1,23 @@
 /* Parampara - Main Styles
    Design: Clean, calm, data-focused. No clutter. */
 
+/* Bundled Indic fonts -- consistent rendering across devices */
+@font-face {
+  font-family: 'Noto Sans Devanagari';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/NotoSansDevanagari.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Noto Sans Tamil';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/NotoSansTamil.ttf') format('truetype');
+}
+
 :root {
   --primary: #c05621;       /* Warm saffron/deep orange */
   --primary-light: #ed8936;
@@ -22,6 +39,7 @@
   --regional: #38a169;
 
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-indic: 'Noto Sans Tamil', 'Noto Sans Devanagari', var(--font-sans);
   --font-devanagari: 'Noto Sans Devanagari', var(--font-sans);
   --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
 
@@ -1232,6 +1250,338 @@ body {
 .cal-export-btn:hover {
   border-color: var(--primary);
   color: var(--primary);
+}
+
+/* === Close Call Badge === */
+.close-call-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #fff3cd;
+  color: #856404;
+  padding: 1px 6px;
+  border-radius: 3px;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+.close-call-text {
+  color: #856404;
+  font-size: 11px;
+  font-style: italic;
+}
+
+/* === Elder Prompts === */
+.elder-prompts-card {
+  background: #fef9ef;
+  border-left: 3px solid var(--warning);
+}
+
+.elder-prompts-intro {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+.elder-prompt-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.elder-prompt-item:last-child {
+  border-bottom: none;
+}
+
+.elder-prompt-text {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.elder-prompt-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.elder-prompt-btn {
+  padding: 4px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: white;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  color: var(--text-secondary);
+}
+
+.elder-prompt-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.elder-prompt-record {
+  background: #fff5f5;
+  border-color: #e53e3e;
+  color: #e53e3e;
+}
+
+.elder-prompt-record:hover {
+  background: #e53e3e;
+  color: white;
+}
+
+.elder-prompt-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+/* === Notes Scope Tabs === */
+.notes-scope-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 12px;
+  border-bottom: 2px solid var(--border);
+}
+
+.scope-tab {
+  flex: 1;
+  padding: 8px 4px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  font-family: var(--font-sans);
+}
+
+.scope-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.scope-tab:hover:not(.active) {
+  color: var(--text-primary);
+}
+
+.notes-empty {
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 16px 0;
+  font-style: italic;
+}
+
+.note-visibility-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.note-visibility-label select {
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 12px;
+  background: white;
+  font-family: var(--font-sans);
+}
+
+/* === Recipe Notes === */
+.recipe-card {
+  border-left: 3px solid var(--warning);
+  padding-left: 12px;
+}
+
+.recipe-title {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.recipe-section {
+  margin-bottom: 8px;
+}
+
+.recipe-section strong {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+}
+
+.recipe-section ul {
+  margin: 4px 0 0 16px;
+  padding: 0;
+}
+
+.recipe-section li {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.recipe-section p {
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 4px 0 0;
+  white-space: pre-wrap;
+}
+
+.recipe-notes {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+.recipe-form .recipe-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  margin-bottom: 8px;
+  box-sizing: border-box;
+}
+
+.recipe-form .recipe-input:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+/* === Elder Wisdom Page === */
+.elder-wisdom-page {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.elder-wisdom-intro {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.elder-wisdom-topic .settings-label {
+  margin-bottom: 4px;
+}
+
+.elder-record-status {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 8px 0;
+}
+
+.elder-transcript {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: #f7f7f5;
+  border-radius: 6px;
+  padding: 12px;
+  margin: 8px 0;
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+.elder-record-controls {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+.elder-record-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #e53e3e;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  padding: 8px 24px;
+  border-radius: 50%;
+  transition: transform 0.15s;
+}
+
+.elder-record-btn:hover {
+  transform: scale(1.05);
+}
+
+.elder-record-btn.recording {
+  animation: pulse-record 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-record {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.elder-save-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--primary);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  margin-top: 16px;
+}
+
+.elder-save-btn:hover {
+  opacity: 0.9;
+}
+
+.elder-save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* === Admin Panel === */
+.admin-user-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.admin-household-input {
+  width: 140px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: var(--font-sans);
+}
+
+.admin-household-input:focus {
+  border-color: var(--primary);
+  outline: none;
 }
 
 /* === Mobile === */

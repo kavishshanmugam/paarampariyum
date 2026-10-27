@@ -12,6 +12,10 @@ rule:
   paksha: shukla
   tithi: ekadashi
   must_prevail_during: sunrise
+elder_prompts:
+  - "How did your family observe the Ekadashi fast? Was there a special meal to break it?"
+  - "Did anyone in the family keep a strict nirjala fast, or was it a partial fast?"
+  - "Were there particular Ekadashis that your family considered more important?"
 review:
   author: "Parampara team"
   status: draft

@@ -124,9 +124,32 @@ router.post('/invite', requireAdmin, (req, res) => {
 // List users (admin)
 router.get('/users', requireAdmin, (req, res) => {
   const users = req.app.locals.db.prepare(
-    'SELECT id, email, name, role, tradition, month_system, created_at, last_login FROM users ORDER BY name'
+    'SELECT id, email, name, role, tradition, month_system, household_id, created_at, last_login FROM users ORDER BY name'
   ).all();
   res.json(users);
+});
+
+// List households (admin)
+router.get('/households', requireAdmin, (req, res) => {
+  const households = req.app.locals.db.prepare(
+    `SELECT household_id, GROUP_CONCAT(name, ', ') as members, COUNT(*) as count
+     FROM users WHERE household_id IS NOT NULL
+     GROUP BY household_id ORDER BY household_id`
+  ).all();
+  res.json(households);
+});
+
+// Assign user to household (admin)
+router.patch('/users/:id/household', requireAdmin, (req, res) => {
+  const { householdId } = req.body;
+  if (!householdId) return res.status(400).json({ error: 'householdId required' });
+
+  const db = req.app.locals.db;
+  const user = db.prepare('SELECT id FROM users WHERE id = ?').get(req.params.id);
+  if (!user) return res.status(404).json({ error: 'User not found' });
+
+  db.prepare('UPDATE users SET household_id = ? WHERE id = ?').run(householdId, req.params.id);
+  res.json({ message: 'Household updated' });
 });
 
 // Bootstrap: create admin user with invite code

@@ -12,6 +12,10 @@ rule:
   tithi: purnima
   paksha: shukla
   must_prevail_during: moonrise
+elder_prompts:
+  - "Did your family do anything special on full moon nights -- a puja, a visit to the temple, or a particular meal?"
+  - "Was Guru Purnima or any particular month's Purnima especially important in your family?"
+  - "Do you remember watching the full moon rise with your family as a child? Where were you?"
 review:
   author: "Parampara team"
   status: draft

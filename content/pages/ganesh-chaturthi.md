@@ -14,6 +14,10 @@ rule:
   paksha: shukla
   tithi: chaturthi
   must_prevail_during: midday
+elder_prompts:
+  - "Did your family make the Vinayagar idol at home from clay or turmeric, or bring one from outside?"
+  - "What was your family's favourite modak or kozhukattai recipe for Vinayagar Chaturthi?"
+  - "How many days did your family keep the idol before visarjan -- and where was it immersed?"
 review:
   author: "Parampara team"
   status: draft

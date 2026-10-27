@@ -14,6 +14,10 @@ rule:
   paksha: shukla
   tithi: purnima
   must_prevail_during: pradosh
+elder_prompts:
+  - "How many lamps did your family light on Karthigai Deepam, and where were they placed around the house?"
+  - "Did your family make special sweets or savouries for Karthigai -- was there a recipe you looked forward to?"
+  - "Has anyone in your family seen the Mahadeepam lit on Arunachala hill at Tiruvannamalai?"
 review:
   author: "Parampara team"
   status: draft

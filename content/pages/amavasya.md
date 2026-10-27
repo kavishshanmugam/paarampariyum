@@ -12,6 +12,10 @@ rule:
   tithi: amavasya
   paksha: krishna
   must_prevail_during: midday
+elder_prompts:
+  - "Did your family perform Tarpan or Tharpanam on Amavasya? Who led the ritual?"
+  - "Were there stories your family shared about ancestors on Amavasya days?"
+  - "Did your family avoid starting anything new on Amavasya, or was that not a concern?"
 review:
   author: "Parampara team"
   status: draft

@@ -11,6 +11,10 @@ rule:
   basis: solar
   description: "Sun enters sidereal Aries (Mesha rashi). Tamil/Malayalam New Year (solar). Telugu/Kannada New Year is lunar (Chaitra Shukla Pratipada) and may differ by weeks."
   must_prevail_during: sunrise
+elder_prompts:
+  - "What did your family arrange for the Kanni or Vishukkani tray on New Year morning?"
+  - "Did your family make Pachadi or Bevu-Bella? What was the reaction to the neem taste?"
+  - "Was there a particular New Year tradition in your family -- new clothes, temple visit, or reading the Panchangam?"
 review:
   author: "Parampara team"
   status: draft

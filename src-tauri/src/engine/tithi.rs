@@ -225,11 +225,11 @@ mod tests {
 
     #[test]
     fn test_tithi_full_moon() {
-        // On a known full moon date, tithi should be near Purnima
-        // Full moon: ~2026-10-07 (approximate)
-        let date = chrono::NaiveDate::from_ymd_opt(2026, 10, 7).unwrap();
+        // Full moon in Oct 2026 is around Oct 25 (new moon Oct 10, +15 days)
+        let date = chrono::NaiveDate::from_ymd_opt(2026, 10, 25).unwrap();
         let jd = date_to_jd(date);
         let tithi = compute_tithi(jd + 0.25); // noon UT
+        println!("Oct 25 2026 tithi: {} (number {})", tithi.name.name(), tithi.tithi_number);
         // Should be within a couple days of Purnima (tithi 15)
         assert!(tithi.tithi_number >= 13 && tithi.tithi_number <= 17,
             "Near full moon, tithi should be ~15, got {}", tithi.tithi_number);

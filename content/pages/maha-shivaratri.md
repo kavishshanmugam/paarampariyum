@@ -14,6 +14,10 @@ rule:
   paksha: krishna
   tithi: chaturdashi
   must_prevail_during: midnight
+elder_prompts:
+  - "Did your family stay up the whole night for Shivaratri? What did you do to keep awake?"
+  - "Which Shiva temple did your family visit for Shivaratri, and what was the night like there?"
+  - "Did anyone in your family do the Abhishekam at home -- with milk, water, or bael leaves?"
 review:
   author: "Parampara team"
   status: draft

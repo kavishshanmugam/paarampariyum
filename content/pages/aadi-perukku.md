@@ -7,6 +7,10 @@ type: regional
 rule:
   basis: solar
   description: "18th day of the Tamil month Aadi (sun in sidereal Cancer + 17 days). Falls approximately August 2-3."
+elder_prompts:
+  - "Did the women in your family go to a river or lake for Aadi Perukku? Which one?"
+  - "What food did your family prepare to set afloat on the water?"
+  - "Was Aadi month treated as inauspicious in your family -- were weddings and new things avoided?"
 review:
   author: "Parampara team"
   status: draft

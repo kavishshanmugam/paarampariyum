@@ -10,6 +10,10 @@ type: major_festival
 rule:
   basis: solar
   description: "41-day austerity period starting from 1st of Malayalam month Vrischikam (sun enters sidereal Scorpio, mid-November) to Mandala Puja (~Dec 26-27). Season continues through Makaravilakku on Makar Sankranti."
+elder_prompts:
+  - "Has anyone in your family made the pilgrimage to Sabarimala? What do they remember most about the journey?"
+  - "Did your family observe the 41-day vratam at home -- wearing the mala, going barefoot, eating only vegetarian food?"
+  - "What does 'Swamiye Sharanam Ayyappa' mean to your family? When did the devotion begin?"
 review:
   author: "Parampara team"
   status: draft

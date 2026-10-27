@@ -3,33 +3,32 @@
 //! Maps Gregorian dates to lunar months, handles amanta/purnimanta naming,
 //! Adhik Maas (intercalary months), and Vikram/Shaka year numbering.
 
+use chrono::Datelike;
 use super::astronomy::*;
 use super::types::*;
 
 /// Determine the lunar month for a given date and conventions.
-///
-/// The lunar month is determined by which solar month (rashi) the Sun occupies
-/// at the new moon that begins the month.
 pub fn determine_lunar_month(
     date: chrono::NaiveDate,
-    location: &Location,
+    _location: &Location,
     conventions: &Conventions,
 ) -> LunarMonthInfo {
     let jd = date_to_jd(date);
 
-    // Find the most recent new moon (Amavasya) before this date
+    // Find the most recent new moon before this date
     let new_moon_jd = find_previous_new_moon(jd);
 
     // Sun's sidereal longitude at new moon determines the month
     let sun_lon = sun_sidereal_longitude(new_moon_jd);
-    let rashi = (sun_lon / 30.0).floor() as u8; // 0-11 (solar month index)
+    let rashi = (sun_lon / 30.0).floor() as u8; // 0-11
 
-    // Map rashi to lunar month
-    // Rashi 0 (Mesha/Aries) -> Chaitra, etc.
-    let month = LunarMonth::from_index(rashi);
+    // Map rashi to lunar month (Amanta convention).
+    // The lunar month is named after the solar transit (Sankranti) that occurs
+    // during it. At the new moon, the sun is in rashi X; during the month it
+    // will enter rashi X+1, so the month name corresponds to rashi+1.
+    let amanta_month = LunarMonth::from_index((rashi + 1) % 12);
 
-    // Check for Adhik Maas: if the Sun doesn't change rashi during this lunar month,
-    // it's an intercalary month
+    // Check for Adhik Maas: if the Sun doesn't change rashi during this lunar month
     let next_new_moon_jd = find_next_new_moon(jd);
     let sun_lon_next = sun_sidereal_longitude(next_new_moon_jd);
     let rashi_next = (sun_lon_next / 30.0).floor() as u8;
@@ -39,24 +38,19 @@ pub fn determine_lunar_month(
     let tithi_info = super::tithi::compute_tithi(jd);
     let in_krishna = tithi_info.tithi_number > 15;
 
-    // Adjust month name for purnimanta system
-    // In purnimanta, the month name changes at Purnima (full moon)
-    // In amanta, it changes at Amavasya (new moon)
+    // Display month: in Purnimanta, Krishna Paksha gets the next month's name
     let display_month = match conventions.month_system {
-        MonthSystem::Amanta => month,
+        MonthSystem::Amanta => amanta_month,
         MonthSystem::Purnimanta => {
             if in_krishna {
-                // In Krishna Paksha under purnimanta, the month name is one ahead
-                LunarMonth::from_index((rashi + 1) % 12)
+                LunarMonth::from_index((rashi + 2) % 12)
             } else {
-                month
+                amanta_month
             }
         }
     };
 
     // Year calculation
-    // Vikram Samvat: starts at Chaitra Shukla Pratipada
-    // Shaka: Vikram - 135 (approximately)
     let gregorian_year = date.year();
     let vikram = if date.month() >= 3 {
         (gregorian_year + 57) as u16
@@ -67,89 +61,93 @@ pub fn determine_lunar_month(
 
     LunarMonthInfo {
         month: display_month,
+        amanta_month,
         is_adhik,
         year_vikram: vikram,
         year_shaka: shaka,
     }
 }
 
-/// Find the most recent new moon (Sun-Moon conjunction) before the given JD.
+/// Approximate the JD of a new moon near a given lunation number k.
 ///
-/// Uses a search starting from ~30 days before.
+/// Based on Meeus, "Astronomical Algorithms", Chapter 49.
+/// k = 0 is the new moon of January 6, 2000.
+fn new_moon_jd(k: f64) -> f64 {
+    let t = k / 1236.85;
+    let t2 = t * t;
+    let t3 = t2 * t;
+    let t4 = t3 * t;
+
+    // Mean phase JD
+    let mut jd = 2451550.09766 + 29.530588861 * k
+        + 0.00015437 * t2
+        - 0.000000150 * t3
+        + 0.00000000073 * t4;
+
+    // Sun's mean anomaly
+    let m = normalize_degrees(2.5534 + 29.10535670 * k - 0.0000014 * t2 - 0.00000011 * t3);
+    let m_rad = m * std::f64::consts::PI / 180.0;
+
+    // Moon's mean anomaly
+    let mp = normalize_degrees(201.5643 + 385.81693528 * k + 0.0107582 * t2
+        + 0.00001238 * t3 - 0.000000058 * t4);
+    let mp_rad = mp * std::f64::consts::PI / 180.0;
+
+    // Moon's argument of latitude
+    let f = normalize_degrees(160.7108 + 390.67050284 * k - 0.0016118 * t2
+        - 0.00000227 * t3 + 0.000000011 * t4);
+    let f_rad = f * std::f64::consts::PI / 180.0;
+
+    // Correction for new moon
+    let e = 1.0 - 0.002516 * t - 0.0000074 * t2;
+
+    jd += -0.40720 * mp_rad.sin()
+        + 0.17241 * e * m_rad.sin()
+        + 0.01608 * (2.0 * mp_rad).sin()
+        + 0.01039 * (2.0 * f_rad).sin()
+        + 0.00739 * e * (mp_rad - m_rad).sin();
+
+    jd
+}
+
+/// Find the lunation number k closest to a given JD.
+fn jd_to_lunation(jd: f64) -> f64 {
+    let year = 2000.0 + (jd - 2451545.0) / 365.25;
+    ((year - 2000.0) * 12.3685).round()
+}
+
+/// Find the most recent new moon before the given JD.
 pub fn find_previous_new_moon(jd: f64) -> f64 {
-    // Start searching from about 35 days before
-    let mut search_jd = jd - 35.0;
-
-    // Walk forward in 1-day steps to find where elongation crosses 0/360
-    let mut prev_elongation = get_elongation(search_jd);
-
-    for _ in 0..40 {
-        search_jd += 1.0;
-        let elongation = get_elongation(search_jd);
-
-        // New moon: elongation crosses from ~350+ to ~10 (wraps around 0)
-        if prev_elongation > 300.0 && elongation < 60.0 && search_jd <= jd {
-            // Found approximate new moon, refine with bisection
-            return refine_new_moon(search_jd - 1.0, search_jd);
+    let mut k = jd_to_lunation(jd);
+    // Try the nearest new moon and go backwards if needed
+    loop {
+        let nm = new_moon_jd(k);
+        if nm < jd {
+            return nm;
         }
-
-        prev_elongation = elongation;
-    }
-
-    // Fallback: search more carefully
-    search_jd = jd - 30.0;
-    for _ in 0..60 {
-        search_jd += 0.5;
-        let elongation = get_elongation(search_jd);
-        if elongation < 5.0 && search_jd <= jd {
-            return search_jd;
+        k -= 1.0;
+        if k < jd_to_lunation(jd) - 3.0 {
+            break;
         }
     }
-
-    jd // shouldn't happen
+    // Fallback
+    new_moon_jd(jd_to_lunation(jd) - 1.0)
 }
 
 /// Find the next new moon after the given JD.
 pub fn find_next_new_moon(jd: f64) -> f64 {
-    let mut search_jd = jd;
-    let mut prev_elongation = get_elongation(search_jd);
-
-    for _ in 0..35 {
-        search_jd += 1.0;
-        let elongation = get_elongation(search_jd);
-
-        if prev_elongation > 300.0 && elongation < 60.0 {
-            return refine_new_moon(search_jd - 1.0, search_jd);
+    let mut k = jd_to_lunation(jd);
+    loop {
+        let nm = new_moon_jd(k);
+        if nm > jd {
+            return nm;
         }
-
-        prev_elongation = elongation;
-    }
-
-    jd + 29.53 // approximate synodic month
-}
-
-/// Moon-Sun elongation (0-360 degrees)
-fn get_elongation(jd: f64) -> f64 {
-    normalize_degrees(moon_sidereal_longitude(jd) - sun_sidereal_longitude(jd))
-}
-
-/// Refine new moon time using bisection.
-fn refine_new_moon(jd_lo: f64, jd_hi: f64) -> f64 {
-    let mut lo = jd_lo;
-    let mut hi = jd_hi;
-
-    for _ in 0..50 {
-        let mid = (lo + hi) / 2.0;
-        let elong = get_elongation(mid);
-
-        if elong < 180.0 {
-            hi = mid;
-        } else {
-            lo = mid;
+        k += 1.0;
+        if k > jd_to_lunation(jd) + 3.0 {
+            break;
         }
     }
-
-    (lo + hi) / 2.0
+    new_moon_jd(jd_to_lunation(jd) + 1.0)
 }
 
 #[cfg(test)]
@@ -163,10 +161,17 @@ mod tests {
         let conventions = Conventions::default();
         let month_info = determine_lunar_month(date, &location, &conventions);
 
-        // Mid-October 2026 should be in Ashvina or Kartika
         println!("Oct 15 2026: {} (adhik: {}, Vikram: {}, Shaka: {})",
             month_info.month.name(), month_info.is_adhik,
             month_info.year_vikram, month_info.year_shaka);
+
+        // Mid-October 2026 should be near Ashvina/Kartika
+        assert!(
+            month_info.month == LunarMonth::Ashvina ||
+            month_info.month == LunarMonth::Kartika ||
+            month_info.month == LunarMonth::Bhadrapada,
+            "Expected Ashvina or nearby month, got {:?}", month_info.month
+        );
     }
 
     #[test]
@@ -175,8 +180,6 @@ mod tests {
         let location = Location::melbourne();
         let conventions = Conventions::default();
         let month_info = determine_lunar_month(date, &location, &conventions);
-
-        // 2026 + 57 = 2083
         assert_eq!(month_info.year_vikram, 2083);
         assert_eq!(month_info.year_shaka, 1948);
     }
@@ -187,6 +190,29 @@ mod tests {
         let jd = date_to_jd(date);
         let new_moon = find_previous_new_moon(jd);
         assert!(new_moon < jd, "Previous new moon should be before the given date");
-        assert!(jd - new_moon < 30.0, "Previous new moon should be within 30 days");
+        assert!(jd - new_moon < 30.0, "Previous new moon should be within 30 days, diff = {}", jd - new_moon);
+
+        let new_moon_date = jd_to_date(new_moon);
+        println!("Previous new moon: {}", new_moon_date);
+    }
+
+    #[test]
+    fn test_new_moon_accuracy() {
+        // The new moon in October 2026 is around Oct 10
+        // The next one is around Nov 8 (Diwali Amavasya)
+        let jd = date_to_jd(chrono::NaiveDate::from_ymd_opt(2026, 10, 15).unwrap());
+        let nm = find_previous_new_moon(jd);
+        let nm_date = jd_to_date(nm);
+        println!("New moon before Oct 15 2026: {}", nm_date);
+        // Should be around Oct 8-12
+        assert!(nm_date.month() == 10 && nm_date.day() >= 7 && nm_date.day() <= 13,
+            "Expected new moon around Oct 10, got {}", nm_date);
+
+        // Next new moon should be around Nov 8 (Diwali)
+        let next_nm = find_next_new_moon(jd);
+        let next_nm_date = jd_to_date(next_nm);
+        println!("Next new moon after Oct 15 2026: {}", next_nm_date);
+        assert!(next_nm_date.month() == 11 && next_nm_date.day() >= 6 && next_nm_date.day() <= 12,
+            "Expected next new moon around Nov 8, got {}", next_nm_date);
     }
 }

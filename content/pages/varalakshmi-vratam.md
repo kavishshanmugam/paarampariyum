@@ -14,6 +14,10 @@ rule:
   tithi: dwadashi
   must_prevail_during: sunrise
   note: "Strictly, the Friday before Shravana Purnima. The engine approximates with Shukla Dwadashi (closest tithi to the typical Friday)."
+elder_prompts:
+  - "Who taught the women in your family how to perform Varalakshmi Vratam? Was there a particular way it was always done?"
+  - "Did your family decorate the kalasham in a special way, or use a particular face for the Goddess?"
+  - "What food did your family prepare for the naivedyam -- was there a sweet that was always part of it?"
 review:
   author: "Parampara team"
   status: draft

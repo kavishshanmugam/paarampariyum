@@ -4,6 +4,7 @@
 //! All angles in degrees unless noted. Julian Day (JD) is the time unit.
 
 use std::f64::consts::PI;
+use chrono::{Datelike, Offset};
 
 const DEG_TO_RAD: f64 = PI / 180.0;
 const RAD_TO_DEG: f64 = 180.0 / PI;
@@ -41,7 +42,7 @@ pub fn date_to_jd(date: chrono::NaiveDate) -> f64 {
 pub fn jd_to_date(jd: f64) -> chrono::NaiveDate {
     let jd = jd + 0.5;
     let z = jd.floor() as i64;
-    let f = jd - z as f64;
+    let _f = jd - z as f64;
 
     let a = if z < 2299161 {
         z
@@ -71,7 +72,7 @@ pub fn get_tz_offset(date: chrono::NaiveDate, tz_name: &str) -> f64 {
     let dt = tz.from_local_datetime(&noon).earliest().unwrap_or_else(|| {
         tz.from_local_datetime(&noon).latest().unwrap()
     });
-    dt.offset().local_minus_utc() as f64 / 3600.0
+    dt.offset().fix().local_minus_utc() as f64 / 3600.0
 }
 
 /// Normalize angle to 0-360 degrees.

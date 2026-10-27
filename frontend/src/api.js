@@ -102,6 +102,17 @@ export async function listUsers() {
   return apiFetch('/auth/users');
 }
 
+export async function listHouseholds() {
+  return apiFetch('/auth/households');
+}
+
+export async function assignHousehold(userId, householdId) {
+  return apiFetch(`/auth/users/${userId}/household`, {
+    method: 'PATCH',
+    body: JSON.stringify({ householdId }),
+  });
+}
+
 // Guide
 export async function sendGuideMessage(message, conversationId) {
   return apiFetch('/guide/chat', {
@@ -118,18 +129,20 @@ export async function flagQuestion(question, context) {
 }
 
 // Family Notes
-export async function getNotes(observanceId) {
-  return apiFetch(`/traditions/${observanceId}`);
+export async function getNotes(observanceId, scope) {
+  const qs = scope ? `?scope=${scope}` : '';
+  return apiFetch(`/traditions/${observanceId}${qs}`);
 }
 
-export async function getAllNotes() {
-  return apiFetch('/traditions');
+export async function getAllNotes(scope) {
+  const qs = scope ? `?scope=${scope}` : '';
+  return apiFetch(`/traditions${qs}`);
 }
 
-export async function createNote(observanceId, content, noteType = 'text') {
+export async function createNote(observanceId, content, noteType = 'text', { scope = 'our_way', visibility = 'household', occurrenceYear } = {}) {
   return apiFetch('/traditions', {
     method: 'POST',
-    body: JSON.stringify({ observanceId, content, noteType }),
+    body: JSON.stringify({ observanceId, content, noteType, scope, visibility, occurrenceYear }),
   });
 }
 
@@ -140,12 +153,14 @@ export async function updateNote(id, updates) {
   });
 }
 
-export async function uploadNoteFile(observanceId, file, noteType) {
+export async function uploadNoteFile(observanceId, file, noteType, { scope = 'our_way', visibility = 'household' } = {}) {
   const token = getToken();
   const form = new FormData();
   form.append('file', file);
   form.append('observanceId', observanceId);
   form.append('noteType', noteType);
+  form.append('scope', scope);
+  form.append('visibility', visibility);
 
   const res = await fetch(`${API_BASE}/traditions/upload`, {
     method: 'POST',

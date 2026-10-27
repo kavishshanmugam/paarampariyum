@@ -9,6 +9,10 @@ rule:
   description: "Thiruvonam (Shravana) nakshatra in the Malayalam month of Chingam (sun in sidereal Leo). Falls August-September."
   nakshatra: Shravana
   solar_month: Chingam
+elder_prompts:
+  - "How many dishes did your family serve on the Onam Sadya, and was there a signature dish your family was known for?"
+  - "Did your family make the Pookalam together? Who designed it?"
+  - "What do you remember most about Onam from when you were young -- the food, the games, or the gathering?"
 review:
   author: "Parampara team"
   status: draft

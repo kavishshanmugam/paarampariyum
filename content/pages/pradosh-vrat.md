@@ -12,6 +12,10 @@ rule:
   paksha: shukla
   tithi: trayodashi
   must_prevail_during: pradosh
+elder_prompts:
+  - "Did your family visit a Shiva temple during the Pradosham window, or perform puja at home?"
+  - "Was Shani Pradosham (Saturday) treated differently in your family?"
+  - "Who in your family first started observing Pradosham regularly -- and what drew them to it?"
 review:
   author: "Parampara team"
   status: draft

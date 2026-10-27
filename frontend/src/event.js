@@ -14,15 +14,27 @@ function parseMarkdown(md) {
   const bodyMatch = md.match(/^---\n[\s\S]*?\n---\n([\s\S]*)$/);
   const body = bodyMatch ? bodyMatch[1].trim() : md.trim();
 
-  // Parse YAML frontmatter
+  // Parse YAML frontmatter (including elder_prompts array)
   const fmMatch = md.match(/^---\n([\s\S]*?)\n---/);
   const frontmatter = {};
+  const elderPrompts = [];
   if (fmMatch) {
+    let inElderPrompts = false;
     for (const line of fmMatch[1].split('\n')) {
+      if (line.match(/^elder_prompts:\s*$/)) {
+        inElderPrompts = true;
+        continue;
+      }
+      if (inElderPrompts) {
+        const item = line.match(/^\s+-\s+"(.+)"$/);
+        if (item) { elderPrompts.push(item[1]); continue; }
+        inElderPrompts = false;
+      }
       const kv = line.match(/^(\w[\w_]*)\s*:\s*(.+)$/);
       if (kv) frontmatter[kv[1]] = kv[2].replace(/^["']|["']$/g, '');
     }
   }
+  frontmatter.elder_prompts = elderPrompts;
 
   return { frontmatter, body };
 }
@@ -131,6 +143,8 @@ export async function renderEventPage(app, eventId, eventName) {
 
         ${sections.map(s => renderSection(s)).join('')}
 
+        ${renderElderPrompts(content.frontmatter.elder_prompts, eventId)}
+
         <div id="family-notes-section"></div>
 
         <div class="event-footer">
@@ -180,18 +194,37 @@ async function loadFamilyNotes(eventId) {
 }
 
 function renderFamilyNotes(container, eventId, notes) {
-  const pinnedNotes = notes.filter(n => n.pinned);
-  const otherNotes = notes.filter(n => !n.pinned);
+  const scope = window._currentNoteScope || null;
+  const ourWayNotes = notes.filter(n => !n.scope || n.scope === 'our_way');
+  const thisYearNotes = notes.filter(n => n.scope === 'this_year');
+  const displayNotes = scope === 'this_year' ? thisYearNotes : scope === 'our_way' ? ourWayNotes : notes;
+
+  const pinnedNotes = displayNotes.filter(n => n.pinned);
+  const otherNotes = displayNotes.filter(n => !n.pinned);
   const allNotes = [...pinnedNotes, ...otherNotes];
+
+  const activeScope = scope || 'all';
+  const currentYear = new Date().getFullYear();
+  const addScope = scope === 'this_year' ? 'this_year' : 'our_way';
 
   container.innerHTML = `
     <div class="notes-section">
       <h3>Family Traditions</h3>
+      <div class="notes-scope-tabs">
+        <button class="scope-tab ${activeScope === 'all' ? 'active' : ''}" onclick="window._switchNoteScope('${eventId}', null)">All</button>
+        <button class="scope-tab ${activeScope === 'our_way' ? 'active' : ''}" onclick="window._switchNoteScope('${eventId}', 'our_way')">Our Way</button>
+        <button class="scope-tab ${activeScope === 'this_year' ? 'active' : ''}" onclick="window._switchNoteScope('${eventId}', 'this_year')">This Year ${currentYear}</button>
+      </div>
+      ${allNotes.length === 0 ? `<p class="notes-empty">No ${scope === 'this_year' ? 'plans for this year' : scope === 'our_way' ? 'lasting traditions' : 'notes'} yet.</p>` : ''}
       ${allNotes.map(note => `
         <div class="note-card ${note.pinned ? 'pinned' : ''}" data-note-id="${note.id}">
           ${renderNoteContent(note)}
           <div class="note-meta">
-            <span>${new Date(note.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+            <span>
+              ${note.author_name ? `<strong>${escapeHtml(note.author_name)}</strong> · ` : ''}
+              ${note.scope === 'this_year' && note.occurrence_year ? `${note.occurrence_year} · ` : ''}
+              ${new Date(note.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </span>
             <div class="note-actions">
               <button class="note-action-btn" onclick="window._noteTogglePin('${eventId}', '${note.id}', ${note.pinned ? 0 : 1})">${note.pinned ? 'Unpin' : 'Pin'}</button>
               ${note.note_type === 'text' ? `<button class="note-action-btn" onclick="window._noteStartEdit('${eventId}', '${note.id}')">Edit</button>` : ''}
@@ -202,9 +235,10 @@ function renderFamilyNotes(container, eventId, notes) {
       `).join('')}
       <div id="note-add-area"></div>
       <div class="note-add-row">
-        <button class="note-add-btn" onclick="window._noteStartAdd('${eventId}')">+ Text note</button>
+        <button class="note-add-btn" onclick="window._noteStartAddScoped('${eventId}', '${addScope}')">+ Text</button>
         <button class="note-add-btn" onclick="window._noteAddPhoto('${eventId}')">+ Photo</button>
         <button class="note-add-btn" onclick="window._noteStartVoice('${eventId}')">+ Voice</button>
+        <button class="note-add-btn" onclick="window._noteStartRecipe('${eventId}')">+ Recipe</button>
       </div>
     </div>
   `;
@@ -217,20 +251,57 @@ function renderNoteContent(note) {
   if (note.note_type === 'voice') {
     return `<div class="note-content"><audio controls src="/api/uploads/${escapeHtml(note.content)}" class="note-audio"></audio></div>`;
   }
+  if (note.note_type === 'recipe') {
+    try {
+      const recipe = JSON.parse(note.content);
+      return `<div class="note-content recipe-card">
+        <div class="recipe-title">${escapeHtml(recipe.title || 'Family Recipe')}</div>
+        ${recipe.ingredients?.length ? `
+          <div class="recipe-section">
+            <strong>Ingredients</strong>
+            <ul>${recipe.ingredients.map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul>
+          </div>
+        ` : ''}
+        ${recipe.method ? `
+          <div class="recipe-section">
+            <strong>Method</strong>
+            <p>${escapeHtml(recipe.method)}</p>
+          </div>
+        ` : ''}
+        ${recipe.notes ? `<div class="recipe-notes"><em>${escapeHtml(recipe.notes)}</em></div>` : ''}
+      </div>`;
+    } catch {
+      return `<div class="note-content">${escapeHtml(note.content)}</div>`;
+    }
+  }
   return `<div class="note-content">${escapeHtml(note.content)}</div>`;
 }
 
 // Family notes interaction handlers
 if (typeof window !== 'undefined') {
   window._noteStartAdd = function(eventId) {
+    window._noteStartAddScoped(eventId, 'our_way');
+  };
+
+  window._noteStartAddScoped = function(eventId, scope) {
     const area = document.getElementById('note-add-area');
     if (!area) return;
+    const isThisYear = scope === 'this_year';
+    const placeholder = isThisYear
+      ? `Plans for this year's observance (e.g. "Puja at Mama's house, 7:30 pm. Priya brings diyas.")`
+      : `Write about your family's tradition for this observance...`;
     area.innerHTML = `
       <div class="note-card">
-        <textarea class="note-edit-area" id="new-note-text" placeholder="Write about your family's tradition for this observance..."></textarea>
+        <textarea class="note-edit-area" id="new-note-text" placeholder="${placeholder}"></textarea>
         <div class="note-save-row">
+          <label class="note-visibility-label">
+            <select id="new-note-visibility">
+              <option value="household">My household</option>
+              <option value="group">Everyone</option>
+            </select>
+          </label>
           <button class="note-cancel-btn" onclick="document.getElementById('note-add-area').innerHTML=''">Cancel</button>
-          <button class="note-save-btn" onclick="window._noteSave('${eventId}')">Save</button>
+          <button class="note-save-btn" onclick="window._noteSaveScoped('${eventId}', '${scope}')">Save</button>
         </div>
       </div>
     `;
@@ -238,10 +309,15 @@ if (typeof window !== 'undefined') {
   };
 
   window._noteSave = async function(eventId) {
+    await window._noteSaveScoped(eventId, 'our_way');
+  };
+
+  window._noteSaveScoped = async function(eventId, scope) {
     const text = document.getElementById('new-note-text')?.value.trim();
     if (!text) return;
+    const visibility = document.getElementById('new-note-visibility')?.value || 'household';
     try {
-      await createNote(eventId, text);
+      await createNote(eventId, text, 'text', { scope, visibility });
       await loadFamilyNotes(eventId);
     } catch (err) {
       alert('Could not save note: ' + err.message);
@@ -313,9 +389,21 @@ if (typeof window !== 'undefined') {
     input.click();
   };
 
-  // Voice recording via MediaRecorder
+  // Voice recording via MediaRecorder + live transcription
   let _voiceRecorder = null;
   let _voiceChunks = [];
+  let _voiceRecognition = null;
+  let _voiceTranscript = '';
+
+  function _getSpeechRecognition() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return null;
+    const r = new SR();
+    r.continuous = true;
+    r.interimResults = true;
+    r.lang = 'en-AU';
+    return r;
+  }
 
   window._noteStartVoice = function(eventId) {
     const area = document.getElementById('note-add-area');
@@ -326,10 +414,13 @@ if (typeof window !== 'undefined') {
       return;
     }
 
+    _voiceTranscript = '';
+
     area.innerHTML = `
       <div class="note-card">
         <div class="voice-record-ui">
           <div class="voice-status" id="voice-status">Press Record to start</div>
+          <div id="voice-transcript" class="elder-transcript" style="display:none;"></div>
           <div class="note-save-row">
             <button class="note-cancel-btn" onclick="window._noteVoiceCancel()">Cancel</button>
             <button class="note-save-btn" id="voice-record-btn" onclick="window._noteVoiceToggle('${eventId}')">Record</button>
@@ -345,6 +436,7 @@ if (typeof window !== 'undefined') {
 
     if (_voiceRecorder && _voiceRecorder.state === 'recording') {
       // Stop recording
+      if (_voiceRecognition) { _voiceRecognition.stop(); _voiceRecognition = null; }
       _voiceRecorder.stop();
       btn.textContent = 'Saving...';
       btn.disabled = true;
@@ -364,7 +456,12 @@ if (typeof window !== 'undefined') {
         const ext = (_voiceRecorder.mimeType || '').includes('mp4') ? '.m4a' : '.webm';
         const file = new File([blob], `voice${ext}`, { type: blob.type });
         try {
+          // Upload audio
           await uploadNoteFile(eventId, file, 'voice');
+          // Save transcript as companion text note if we got one
+          if (_voiceTranscript.trim()) {
+            await createNote(eventId, `[Transcript] ${_voiceTranscript.trim()}`, 'text', { scope: 'our_way' });
+          }
           await loadFamilyNotes(eventId);
         } catch (err) {
           alert('Could not save voice note: ' + err.message);
@@ -372,23 +469,148 @@ if (typeof window !== 'undefined') {
         _voiceRecorder = null;
       };
 
+      // Start speech recognition for live transcript
+      const recognition = _getSpeechRecognition();
+      if (recognition) {
+        _voiceRecognition = recognition;
+        let finalTranscript = '';
+        const transcriptEl = document.getElementById('voice-transcript');
+        if (transcriptEl) transcriptEl.style.display = 'block';
+
+        recognition.onresult = (event) => {
+          let interim = '';
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+              finalTranscript += event.results[i][0].transcript + ' ';
+            } else {
+              interim += event.results[i][0].transcript;
+            }
+          }
+          _voiceTranscript = finalTranscript;
+          if (transcriptEl) transcriptEl.textContent = finalTranscript + (interim ? `...${interim}` : '');
+        };
+
+        recognition.onerror = () => {};
+        recognition.onend = () => {
+          if (_voiceRecorder?.state === 'recording' && _voiceRecognition) {
+            try { _voiceRecognition.start(); } catch { /* ok */ }
+          }
+        };
+        try { recognition.start(); } catch { /* ok */ }
+      }
+
       _voiceRecorder.start();
       btn.textContent = 'Stop';
       btn.style.background = 'var(--error)';
-      status.textContent = 'Recording...';
+      status.textContent = recognition ? 'Recording + transcribing...' : 'Recording... (transcription not available)';
     } catch (err) {
       alert('Microphone access denied: ' + err.message);
     }
   };
 
   window._noteVoiceCancel = function() {
+    if (_voiceRecognition) { _voiceRecognition.stop(); _voiceRecognition = null; }
     if (_voiceRecorder && _voiceRecorder.state === 'recording') {
       _voiceRecorder.stream?.getTracks().forEach(t => t.stop());
       _voiceRecorder.stop();
       _voiceRecorder = null;
     }
+    _voiceTranscript = '';
     const area = document.getElementById('note-add-area');
     if (area) area.innerHTML = '';
+  };
+
+  // Recipe note
+  window._noteStartRecipe = function(eventId) {
+    const area = document.getElementById('note-add-area');
+    if (!area) return;
+    area.innerHTML = `
+      <div class="note-card recipe-form">
+        <input type="text" class="recipe-input" id="recipe-title" placeholder="Recipe name (e.g. Paatti's Pongal)">
+        <textarea class="note-edit-area" id="recipe-ingredients" rows="4" placeholder="Ingredients (one per line)&#10;e.g.&#10;1 cup raw rice&#10;1/2 cup moong dal&#10;4 cups milk"></textarea>
+        <textarea class="note-edit-area" id="recipe-method" rows="4" placeholder="Method / how to make it..."></textarea>
+        <input type="text" class="recipe-input" id="recipe-notes" placeholder="Notes (e.g. 'Paatti always adds extra ghee at the end')">
+        <div class="note-save-row">
+          <label class="note-visibility-label">
+            <select id="recipe-visibility">
+              <option value="household">My household</option>
+              <option value="group">Everyone</option>
+            </select>
+          </label>
+          <button class="note-cancel-btn" onclick="document.getElementById('note-add-area').innerHTML=''">Cancel</button>
+          <button class="note-save-btn" onclick="window._noteSaveRecipe('${eventId}')">Save Recipe</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('recipe-title')?.focus();
+    area.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  window._noteSaveRecipe = async function(eventId) {
+    const title = document.getElementById('recipe-title')?.value.trim();
+    const ingredientsRaw = document.getElementById('recipe-ingredients')?.value.trim();
+    const method = document.getElementById('recipe-method')?.value.trim();
+    const notes = document.getElementById('recipe-notes')?.value.trim();
+    const visibility = document.getElementById('recipe-visibility')?.value || 'household';
+
+    if (!title && !ingredientsRaw && !method) {
+      alert('Please fill in at least the recipe name or ingredients.');
+      return;
+    }
+
+    const ingredients = ingredientsRaw ? ingredientsRaw.split('\n').map(l => l.trim()).filter(Boolean) : [];
+    const recipe = JSON.stringify({ title, ingredients, method, notes });
+
+    try {
+      await createNote(eventId, recipe, 'recipe', { scope: 'our_way', visibility });
+      await loadFamilyNotes(eventId);
+    } catch (err) {
+      alert('Could not save recipe: ' + err.message);
+    }
+  };
+
+  // Elder prompt handlers
+  window._elderPromptText = function(eventId, promptIdx) {
+    const area = document.getElementById('note-add-area');
+    if (!area) return;
+    if (!getToken()) { alert('Sign in to record family traditions.'); return; }
+    area.innerHTML = `
+      <div class="note-card">
+        <div class="elder-prompt-label">Recording elder's answer...</div>
+        <textarea class="note-edit-area" id="new-note-text" placeholder="Type or dictate what they share..."></textarea>
+        <div class="note-save-row">
+          <button class="note-cancel-btn" onclick="document.getElementById('note-add-area').innerHTML=''">Cancel</button>
+          <button class="note-save-btn" onclick="window._noteSaveWithScope('${eventId}', 'our_way')">Save</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('new-note-text')?.focus();
+    // Scroll to add area
+    area.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  window._elderPromptRecord = function(eventId, promptIdx) {
+    if (!getToken()) { alert('Sign in to record family traditions.'); return; }
+    window._noteStartVoice(eventId);
+  };
+
+  // Scope-aware save
+  window._noteSaveWithScope = async function(eventId, scope) {
+    const text = document.getElementById('new-note-text')?.value.trim();
+    if (!text) return;
+    try {
+      await createNote(eventId, text, 'text', { scope });
+      await loadFamilyNotes(eventId);
+    } catch (err) {
+      alert('Could not save note: ' + err.message);
+    }
+  };
+
+  // Track which scope tab is active
+  window._currentNoteScope = null;
+  window._switchNoteScope = async function(eventId, scope) {
+    window._currentNoteScope = scope;
+    await loadFamilyNotes(eventId);
   };
 
   // Photo lightbox
@@ -399,6 +621,25 @@ if (typeof window !== 'undefined') {
     overlay.onclick = () => overlay.remove();
     document.body.appendChild(overlay);
   };
+}
+
+function renderElderPrompts(prompts, eventId) {
+  if (!prompts || prompts.length === 0) return '';
+  return `
+    <div class="info-card elder-prompts-card">
+      <h3>Ask Your Elders</h3>
+      <p class="elder-prompts-intro">These questions are meant to start a conversation. Hand the phone to an elder, or ask them over a meal.</p>
+      ${prompts.map((q, i) => `
+        <div class="elder-prompt-item">
+          <div class="elder-prompt-text">${escapeHtml(q)}</div>
+          <div class="elder-prompt-actions">
+            <button class="elder-prompt-btn" onclick="window._elderPromptText('${escapeAttr(eventId)}', ${i})">Write</button>
+            <button class="elder-prompt-btn elder-prompt-record" onclick="window._elderPromptRecord('${escapeAttr(eventId)}', ${i})">Record</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
 }
 
 function parseSections(body) {

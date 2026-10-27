@@ -14,6 +14,10 @@ rule:
   paksha: shukla
   tithi: shashthi
   must_prevail_during: pradosh
+elder_prompts:
+  - "Did your family observe the full six-day fast for Skanda Shashthi, or a shorter version?"
+  - "Have you seen a Soorasamharam re-enactment at a temple? What was the most memorable moment?"
+  - "Did anyone in your family recite Kanda Sashti Kavasam daily during this period? How did they learn it?"
 review:
   author: "Parampara team"
   status: draft

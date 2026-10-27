@@ -120,8 +120,9 @@ function renderTodayContent(app, today, panchang, festivals) {
         <div class="festival-item clickable" onclick="app.openEventPage('${f.rule_id}', '${f.name.replace(/'/g, "\\'")}')">
           <div class="festival-dot ${getFestivalDotClass(f.festival_type)}"></div>
           <div>
-            <div class="festival-name">${f.name}</div>
+            <div class="festival-name">${f.name}${f.close_call ? ' <span class="close-call-badge" title="' + (f.close_call_note || 'Tithi boundary is very close to the time window') + '">close call</span>' : ''}</div>
             <div class="festival-reason">${f.reason}</div>
+            ${f.close_call_note ? `<div class="festival-reason close-call-text">${f.close_call_note}</div>` : ''}
             ${f.variant_note ? `<div class="festival-reason" style="font-style: italic;">${f.variant_note}</div>` : ''}
           </div>
           <svg class="festival-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l4 4-4 4"/></svg>
@@ -149,9 +150,10 @@ function renderTodayContent(app, today, panchang, festivals) {
         <div class="festival-item clickable" onclick="app.openEventPage('${f.rule_id}', '${f.name.replace(/'/g, "\\'")}')">
           <div class="festival-dot ${getFestivalDotClass(f.festival_type)}"></div>
           <div>
-            <div class="festival-name">${f.name}</div>
+            <div class="festival-name">${f.name}${f.close_call ? ' <span class="close-call-badge">close call</span>' : ''}</div>
             <div class="festival-date">${app.formatDate(f.date)}</div>
             <div class="festival-reason">${f.reason}</div>
+            ${f.close_call_note ? `<div class="festival-reason close-call-text">${f.close_call_note}</div>` : ''}
           </div>
           <svg class="festival-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l4 4-4 4"/></svg>
         </div>
@@ -456,6 +458,8 @@ function mockFestivals(today) {
       festival_type: 'RecurringFortnightly',
       reason: 'Ekadashi of Ashvina -- a fasting day sacred to Vishnu',
       variant_note: 'Vaishnavas may observe on the next day if Dashami touches sunrise',
+      close_call: true,
+      close_call_note: 'Close call: the tithi boundary falls within 15 minutes of sunrise',
     },
     {
       rule_id: 'pradosh-vrat',
@@ -464,6 +468,8 @@ function mockFestivals(today) {
       festival_type: 'RecurringFortnightly',
       reason: 'Trayodashi at dusk in Ashvina -- evening worship of Shiva',
       variant_note: null,
+      close_call: false,
+      close_call_note: null,
     },
     {
       rule_id: 'naraka-chaturdashi',
@@ -472,6 +478,8 @@ function mockFestivals(today) {
       festival_type: 'MajorFestival',
       reason: 'Chaturdashi of Krishna Paksha -- Deepavali; oil bath before dawn',
       variant_note: null,
+      close_call: false,
+      close_call_note: null,
     },
     {
       rule_id: 'diwali-lakshmi-puja',
@@ -480,6 +488,18 @@ function mockFestivals(today) {
       festival_type: 'MajorFestival',
       reason: 'Amavasya in Ashvina -- Lakshmi Puja with lamps on the new-moon night',
       variant_note: null,
+      close_call: false,
+      close_call_note: null,
+    },
+    {
+      rule_id: 'pongal',
+      name: 'Pongal',
+      date: addDays(today, 80),
+      festival_type: 'SolarTransit',
+      reason: 'Sun enters sidereal Capricorn -- Thai Pongal, Tamil harvest',
+      variant_note: null,
+      close_call: false,
+      close_call_note: null,
     },
     {
       rule_id: 'karthigai-deepam',
@@ -488,6 +508,8 @@ function mockFestivals(today) {
       festival_type: 'MajorFestival',
       reason: 'Kartika Purnima at dusk -- the Tamil festival of lamps',
       variant_note: null,
+      close_call: false,
+      close_call_note: null,
     },
   ];
 }

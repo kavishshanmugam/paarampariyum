@@ -14,6 +14,7 @@ function initDb() {
       role TEXT DEFAULT 'member',
       tradition TEXT DEFAULT 'smarta',
       month_system TEXT DEFAULT 'purnimanta',
+      household_id TEXT,
       created_at TEXT DEFAULT (datetime('now')),
       last_login TEXT
     );
@@ -45,7 +46,11 @@ function initDb() {
       observance_id TEXT NOT NULL,
       content TEXT NOT NULL,
       note_type TEXT DEFAULT 'text',
+      scope TEXT DEFAULT 'our_way',
+      occurrence_year INTEGER,
       pinned INTEGER DEFAULT 0,
+      visibility TEXT DEFAULT 'household',
+      household_id TEXT,
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     );
@@ -67,6 +72,21 @@ function initDb() {
       updated_at TEXT DEFAULT (datetime('now'))
     );
   `);
+
+  // Migrations for existing databases
+  const migrations = [
+    { col: 'scope', table: 'family_notes', sql: "ALTER TABLE family_notes ADD COLUMN scope TEXT DEFAULT 'our_way'" },
+    { col: 'occurrence_year', table: 'family_notes', sql: 'ALTER TABLE family_notes ADD COLUMN occurrence_year INTEGER' },
+    { col: 'visibility', table: 'family_notes', sql: "ALTER TABLE family_notes ADD COLUMN visibility TEXT DEFAULT 'household'" },
+    { col: 'household_id', table: 'family_notes', sql: 'ALTER TABLE family_notes ADD COLUMN household_id TEXT' },
+    { col: 'household_id', table: 'users', sql: 'ALTER TABLE users ADD COLUMN household_id TEXT' },
+  ];
+  for (const m of migrations) {
+    try {
+      const cols = db.prepare(`PRAGMA table_info(${m.table})`).all();
+      if (!cols.find(c => c.name === m.col)) db.exec(m.sql);
+    } catch { /* column already exists */ }
+  }
 
   return db;
 }

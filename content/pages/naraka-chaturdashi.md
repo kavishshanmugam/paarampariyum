@@ -18,6 +18,10 @@ rule:
   paksha: krishna
   tithi: chaturdashi
   must_prevail_during: sunrise
+elder_prompts:
+  - "What time did your family wake up for the oil bath on Deepavali morning? Who applied the oil first?"
+  - "Did your family burst crackers at dawn, and was there a favourite type -- atom bomb, flower pot, or sparklers?"
+  - "What sweets and savouries did your family prepare for Deepavali -- was there a recipe unique to your household?"
 review:
   author: "Parampara team"
   status: draft
