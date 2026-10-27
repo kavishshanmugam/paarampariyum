@@ -10,6 +10,7 @@
 
 let currentYear, currentMonth;
 let yearViewActive = false;
+let calendarFilter = 'all'; // all, major, recurring, solar
 
 export async function renderCalendar(app) {
   const container = document.getElementById('view-calendar');
@@ -166,6 +167,19 @@ function renderCalendarContent(app, panchangByDate, festivalsByDate, startDate, 
       </button>
     </div>
 
+    <div class="cal-filter-chips">
+      <button class="cal-filter-chip ${calendarFilter === 'all' ? 'active' : ''}" onclick="window._calFilter('all')">All</button>
+      <button class="cal-filter-chip ${calendarFilter === 'major' ? 'active' : ''}" onclick="window._calFilter('major')">
+        <span class="cal-chip-dot" style="background:var(--major-festival)"></span>Major
+      </button>
+      <button class="cal-filter-chip ${calendarFilter === 'recurring' ? 'active' : ''}" onclick="window._calFilter('recurring')">
+        <span class="cal-chip-dot" style="background:var(--recurring)"></span>Monthly
+      </button>
+      <button class="cal-filter-chip ${calendarFilter === 'solar' ? 'active' : ''}" onclick="window._calFilter('solar')">
+        <span class="cal-chip-dot" style="background:var(--solar)"></span>Solar
+      </button>
+    </div>
+
     <div class="calendar-weekdays">
       ${weekdays.map(w => `<div class="calendar-weekday">${w}</div>`).join('')}
     </div>
@@ -183,15 +197,16 @@ function renderMonthFestivals(app, festivalsByDate) {
   const allFestivals = [];
   for (const [date, festivals] of Object.entries(festivalsByDate)) {
     for (const f of festivals) {
-      // Only show festivals in the current month
       const d = new Date(date + 'T00:00:00');
-      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear && matchesFilter(f.festival_type)) {
         allFestivals.push(f);
       }
     }
   }
 
-  if (allFestivals.length === 0) return '';
+  if (allFestivals.length === 0) return calendarFilter !== 'all'
+    ? `<div class="info-card" style="margin-top:16px;"><p style="color:var(--text-muted);font-size:13px;">No ${calendarFilter} festivals this month.</p></div>`
+    : '';
 
   // Deduplicate recurring ones for display
   const seen = new Set();
@@ -382,6 +397,18 @@ window._exportICS = async function() {
     console.error('Failed to export ICS:', e);
   }
 };
+
+// === Filter ===
+window._calFilter = function(filter) {
+  calendarFilter = filter;
+  renderCalendar(window.app);
+};
+
+function matchesFilter(festivalType) {
+  if (calendarFilter === 'all') return true;
+  const cls = getFestivalDotClass(festivalType);
+  return cls === calendarFilter;
+}
 
 // === Year View ===
 window._toggleYearView = function() {

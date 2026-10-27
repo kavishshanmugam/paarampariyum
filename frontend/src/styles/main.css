@@ -1584,6 +1584,32 @@ body {
   outline: none;
 }
 
+/* === Calendar Filter Chips === */
+.cal-filter-chips {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.cal-filter-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 3px 10px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s;
+}
+.cal-filter-chip:hover { border-color: var(--primary); }
+.cal-filter-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+.cal-chip-dot { width: 6px; height: 6px; border-radius: 50%; }
+.cal-filter-chip.active .cal-chip-dot { background: white !important; }
+
 /* === Guide Depth Selector === */
 .guide-depth-selector {
   display: flex;
