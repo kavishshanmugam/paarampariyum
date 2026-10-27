@@ -82,6 +82,17 @@ Sabudana (tapioca pearls), sendha namak, and all Ekadashi-permissible foods are 
 
 *Evidence grade: Plausible alignment; no direct study of Ekadashi-specific outcomes.*
 
+## Prayers and Mantras
+
+**Vishnu Ashtakshara**
+ஓம் நமோ நாராயணாய
+*Om Namo Narayanaya*
+"I bow to Narayana (Vishnu)."
+The eight-syllable mantra of Vishnu. Chanted throughout Ekadashi, especially during the evening and dawn.
+
+**Vishnu Sahasranama**
+The thousand names of Vishnu (from the Mahabharata, Anushasana Parva) is traditionally recited on Ekadashi by those who keep the full vigil. Even a few names -- Keshava, Madhava, Govinda -- are considered auspicious.
+
 ## How others do it
 
 - **Strict Vaishnavas (ISKCON, Gaudiya tradition):** Nirjala fast (no water) on at least one Ekadashi per year (Nirjala Ekadashi in summer); all other Ekadashis observed with full grain abstention

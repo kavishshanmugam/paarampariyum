@@ -18,10 +18,19 @@
 - [x] Date validation against Drik Panchang (5/5 festivals match)
 - [x] Recipe note type (structured: title, ingredients, method)
 - [x] Admin household management UI (Settings > Manage Households)
+- [x] Voice note transcripts (Web Speech API in event.js + elder.js)
+
+## v1.3 -- Calendar & Guide Polish (COMPLETE)
+- [x] 24-month year view with major festival highlights
+- [x] Calendar festival type filters (All/Major/Monthly/Solar)
+- [x] Guide depth selector (Simple/Standard/Scholarly)
+- [x] "Ask My Family" shareable questions list
+- [x] Enhanced day detail popup (reasons, variant notes, sunrise/sunset)
 
 ## Remaining
-- [x] **P1** Voice note transcripts (Web Speech API live transcription in event.js + elder.js)
-- [x] **P1** Rebuild Tauri with latest frontend (recipe + admin + voice transcription)
+- [ ] **P1** Rebuild Tauri with v1.3 frontend
+- [ ] **P1** Onam engine rule (needs SolarNakshatra rule type)
 - [ ] **P2** Mobile builds (iOS TestFlight, Android APK)
 - [ ] **P2** Extend date validation to cover Oct 2026 - Dec 2027 fully
-- [ ] **P2** "In Melbourne" season notes on any pages still missing them
+- [ ] **P2** Travel mode (recompute when location changes)
+- [ ] **P2** Prayers/mantras with transliteration (EVT-10)

@@ -122,6 +122,20 @@ Indian and Sri Lankan grocers in Dandenong, Footscray, and Glen Waverley stock j
 
 **Seasonal.** In the Tamil calendar, Margazhi (Dec-Jan) is considered inauspicious for new ventures; Thai (Jan-Feb) marks the return of auspiciousness. The sun moves northward (Uttarayana) and days begin to lengthen. In Melbourne, January is high summer -- the harvest spirit matches naturally.
 
+## Prayers and Mantras
+
+**Surya Gayatri**
+ஓம் பாஸ்கராய வித்மஹே மஹாத்யுதிகராய தீமஹி | தன்னோ சூர்யஃ ப்ரசோதயாத் ||
+*Om Bhaskaraya Vidmahe Mahadyutikaraya Dheemahi | Tanno Suryah Prachodayat*
+"We meditate on the radiant sun; may that great light illuminate our minds."
+A form of the Gayatri addressed to Surya, appropriate for Pongal as a solar festival.
+
+**Pongalo Pongal**
+பொங்கலோ பொங்கல்!
+*Pongalo Pongal!*
+"Let it boil over, Pongal!"
+Not a mantra in the Vedic sense, but the joyful exclamation chanted as the rice pot boils over -- the central ritual moment of Thai Pongal.
+
 ## How others do it
 
 - **Andhra Pradesh / Telangana:** Called Sankranti; 3 days: Bhogi, Sankranti, Kanuma. Haridasu (travelling bards) go door to door. Rangoli competitions are massive.

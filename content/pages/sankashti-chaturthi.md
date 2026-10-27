@@ -83,6 +83,17 @@ Durva grass grows wild in Melbourne lawns and parks — it is the common couch g
 
 **Psychological.** The act of fasting through the day and then watching for the moon — which cannot be hurried — is a built-in practice of patience and attention. Sankashti is unusual among Hindu fasts because the break condition is natural and unscheduled: you wait until the moon appears.
 
+## Prayers and Mantras
+
+**Ganapati Atharva Shirsha** (opening)
+ஓம் நமஸ்தே கணபதயே | த்வமேவ ப்ரத்யக்ஷம் தத்த்வமசி
+*Om Namaste Ganapataye | Tvameva Pratyaksham Tattvamasi*
+"Om, salutations to Ganapati. You alone are the visible reality."
+From the Ganapati Atharva Shirsha Upanishad. Traditionally recited on Sankashti Chaturthi after sighting the moon.
+
+**Sankashta Nashana Stotram**
+The "Sankashta Nashana Ganapati Stotram" (hymn for the removal of difficulties) is the primary text recited on Sankashti evenings. It narrates Ganesha's role as the remover of obstacles and is chanted after moonrise.
+
 ## How others do it
 
 - **Maharashtra:** Sankashti is extremely prominent; Angaraki Chaturthi (when it falls on Tuesday) sees large crowds at Siddhivinayak temple in Mumbai

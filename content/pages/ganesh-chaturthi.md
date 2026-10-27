@@ -113,6 +113,21 @@ For Visarjan: eco-clay murtis that dissolve cleanly in water are widely availabl
 
 **The broken tusk as the price of knowledge.** Ganesha broke his own tusk to write the Mahabharata when his quill failed. Knowledge has a cost; the willingness to sacrifice something of oneself for it is encoded in his form.
 
+## Prayers and Mantras
+
+**Ganapati Vandana**
+ஓம் கணானாம் த்வா கணபதிம் ஹவாமஹே
+*Om Gananam Tva Ganapathim Havamahey*
+"O lord of the hosts, we invoke you, the seer among seers, the most renowned."
+From Rig Veda 2.23.1 -- the oldest known invocation of Ganapati.
+
+**Vakratunda Mahakaya**
+வக்ரதுண்ட மஹாகாய சூர்ய கோடி சமப்ரப |
+நிர்விக்னம் குரு மே தேவ சர்வ கார்யேஷு சர்வதா ||
+*Vakratunda Mahakaya Surya Koti Samaprabha | Nirvighnam Kuru Me Deva Sarva Karyeshu Sarvada*
+"O curved-trunk, mighty-bodied one, radiant as a crore of suns -- make all my endeavours free of obstacles, always."
+The most common opening prayer before any undertaking.
+
 ## How others do it
 
 - **Maharashtra:** The largest and most elaborate celebration anywhere; Pune's Kasba Ganpati and Mumbai's Lalbaugcha Raja draw hundreds of thousands; 10-day format is standard; community (sarvajanik) pandals funded by subscription; the Visarjan procession on Anant Chaturdashi is the year's biggest civic event in Mumbai

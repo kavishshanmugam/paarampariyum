@@ -99,6 +99,20 @@ The Sri Lankan Tamil community in Melbourne is the primary organising force for 
 
 **Seasonal.** Thai month (January-February) is mid-summer in Melbourne, making outdoor processions comfortable.
 
+## Prayers and Mantras
+
+**Kanda Sashti Kavasam** (opening)
+துதிப்போர்க்கு வல்வினைபோம் துன்பம்போம்
+*Thuthiporkku Valvinaipom Thunbampom*
+"For those who praise (Murugan), great karmic burdens depart, sorrows depart."
+The Kanda Sashti Kavasam by Devaraya Swamigal is the primary devotional text for Thaipusam. It is chanted throughout the kavadi procession.
+
+**Murugan Mantra**
+ஓம் சரவணபவ
+*Om Saravanabhava*
+"Om, (salutations to) the one born in the Saravana lake (among the reeds)."
+The six-syllable mantra of Murugan/Skanda, chanted by kavadi bearers.
+
 ## How others do it
 
 - **Tamil Nadu:** Observed at the six Arupadai Veedu temples (Palani, Tiruchendur, Tirupparan Kundram, Swamimalai, Tiruttani, Pazhamudir Cholai); kavadi is common but not universal

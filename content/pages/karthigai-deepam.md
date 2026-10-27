@@ -92,6 +92,20 @@ Clay lamps are available cheaply at Indian stores, especially October-December. 
 
 **Seasonal.** In Tamil Nadu, Karthigai (November-December) is post-monsoon; nights are dark and clear. In Melbourne, late November is early summer with long daylight, so the lamps are most striking at twilight.
 
+## Prayers and Mantras
+
+**Deepa Jyoti Mantra**
+தீபம் ஜ்யோதிஃ பரப்ரஹ்ம தீபம் சர்வ தமோபஹம் |
+தீபேன சாத்யதே சர்வம் சந்த்யா தீபம் நமோஸ்துதே ||
+*Deepam Jyotih Parabrahma Deepam Sarva Tamoapaham | Deepena Sadhyate Sarvam Sandhya Deepam Namostute*
+"The lamp is the light of the Supreme; the lamp removes all darkness. By the lamp all is accomplished; I bow to the evening lamp."
+Recited while lighting each lamp on Karthigai evening.
+
+**Shiva Jyoti Mantra**
+ஓம் நமஃ சிவாய
+*Om Namah Shivaya*
+Karthigai Deepam celebrates Shiva manifesting as the infinite column of fire (Jyotirlinga). The Panchakshara mantra is chanted while lighting the main deepam at dusk.
+
 ## How others do it
 
 - **Tamil Nadu:** Full lamp display at every home; Tiruvannamalai Deepam is the culmination; Murugan temples hold special events

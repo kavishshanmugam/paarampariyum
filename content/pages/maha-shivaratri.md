@@ -91,6 +91,21 @@ Bael leaves are the trickiest item. Indian grocery stores in Footscray, Dandenon
 
 **Seasonal.** In India, late winter/early spring is the junction of seasons (sandhi), considered a powerful time for tapas (austerity) and inner work. The fast and vigil are a form of accessible tapas for householders.
 
+## Prayers and Mantras
+
+**Panchakshara Mantra**
+ஓம் நமஃ சிவாய
+*Om Namah Shivaya*
+"I bow to Shiva."
+The five-syllable (na-mah-shi-va-ya) mantra from the Yajur Veda (Sri Rudram). The single most important Shaiva mantra, chanted throughout the night vigil.
+
+**Maha Mrityunjaya Mantra**
+ஓம் த்ர்யம்பகம் யஜாமஹே சுகந்திம் புஷ்டிவர்தனம் |
+உர்வாருகமிவ பந்தனாத் ம்ருத்யோர் முக்ஷீய மாம்ருதாத் ||
+*Om Tryambakam Yajamahe Sugandhim Pushtivardhanam | Urvarukamiva Bandhanat Mrityor Mukshiya Maamritat*
+"We worship the three-eyed one who nourishes all beings. As a ripe cucumber is freed from its vine, may we be liberated from death, not from immortality."
+From Rig Veda 7.59.12. Chanted for health and protection; traditional during the night vigil.
+
 ## How others do it
 
 - **Shaivite traditions (South India):** Elaborate temple Abhisheks through the night; Shri Rudram chanted continuously; Shiva devotees in North Tamil Nadu carry kavadi

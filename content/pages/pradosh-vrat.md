@@ -83,6 +83,20 @@ Bilva trees do not grow in Melbourne; bilva leaves are sometimes available dried
 
 **Temporal.** Pradosh literally means "dusk" — the liminal hour. Many Hindu traditions assign special spiritual potency to boundaries: the junction of night and day (Brahma Muhurta), of lunar fortnights (Amavasya, Purnima), and of tithis. Pradosh is the daily-level liminal moment captured in a fortnightly observance.
 
+## Prayers and Mantras
+
+**Panchakshara**
+ஓம் நமஃ சிவாய
+*Om Namah Shivaya*
+"I bow to Shiva."
+The five-syllable mantra, chanted 108 times during the Pradosham window (the 2.5 hours around sunset on Trayodashi).
+
+**Shiva Dhyana Shloka**
+த்யாயேன்னித்யம் மஹேசம் ரஜதகிரிநிபம் சாருசந்த்ராவதம்சம்
+*Dhyayen Nityam Mahesham Rajatagirinibham Charuchandravatamsam*
+"Meditate always on the great lord, who gleams like a silver mountain, adorned with the beautiful crescent moon."
+An opening verse for Shiva meditation, especially on Pradosham evenings.
+
 ## How others do it
 
 - **South India (especially Tamil Nadu):** Pradosh is observed with great regularity; Shiva temples hold special abhisheka (ritual bathing of the lingam) during the pradosh window; the temple circuit is walked three times during the window

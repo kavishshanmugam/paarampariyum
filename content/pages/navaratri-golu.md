@@ -122,6 +122,21 @@ Dolls can be sourced from Indian stores in Dandenong and Footscray before Navara
 
 **Seasonal.** In India, Sharad Navaratri falls after the monsoon when the weather clears. In Melbourne, October is mid-spring.
 
+## Prayers and Mantras
+
+**Saraswati Vandana**
+ஸரஸ்வதி நமஸ்துப்யம் வரதே காமரூபிணி |
+வித்யாரம்பம் கரிஷ்யாமி ஸித்திர் பவது மே ஸதா ||
+*Saraswati Namastubhyam Varade Kamarupini | Vidyarambham Karishyami Siddhir Bhavatu Me Sada*
+"Salutations to Saraswati, giver of boons. I begin my studies; may success always be mine."
+Recited on Vijayadashami during the Vidyarambham (initiation of learning) ceremony for children.
+
+**Mahishasura Mardini Stotram** (refrain)
+ஐயிகிரி நந்தினி நந்திதமேதினி
+*Ayigiri Nandini Nanditamedini*
+"O daughter of the mountain, you who bring joy to the earth..."
+The famous Mahishasura Mardini Stotram is sung during Navaratri evenings, celebrating Durga's victory.
+
 ## How others do it
 
 - **Andhra Pradesh / Telangana:** Bommala Koluvu (doll festival); Batukamma flower festival runs concurrently in Telangana -- women arrange flower stacks and float them in water

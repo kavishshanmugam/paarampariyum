@@ -96,6 +96,21 @@ Sesame oil and shikakai are available at Indian grocers in Footscray, Dandenong,
 
 *Evidence grade: Caution.*
 
+## Prayers and Mantras
+
+**Lakshmi Gayatri**
+ஓம் மஹாலக்ஷ்ம்யை ச வித்மஹே விஷ்ணுபத்ன்யை ச தீமஹி | தன்னோ லக்ஷ்மீஃ ப்ரசோதயாத் ||
+*Om Mahalakshmyai Cha Vidmahe Vishnupatnyai Cha Dheemahi | Tanno Lakshmeeh Prachodayat*
+"We meditate on Mahalakshmi, consort of Vishnu; may Lakshmi illuminate our path."
+Chanted during the Lakshmi Puja on Deepavali evening.
+
+**Deepa Jyoti Mantra**
+தீபம் ஜ்யோதிஃ பரப்ரஹ்ம தீபம் சர்வ தமோபஹம் |
+தீபேன சாத்யதே சர்வம் சந்த்யா தீபம் நமோஸ்துதே ||
+*Deepam Jyotih Parabrahma Deepam Sarva Tamoapaham | Deepena Sadhyate Sarvam Sandhya Deepam Namostute*
+"The lamp is the light of the Supreme; the lamp removes all darkness. By the lamp all is accomplished; I bow to the evening lamp."
+Traditionally recited while lighting the first lamp on Deepavali evening.
+
 ## How others do it
 
 - **Tamil Nadu, Andhra Pradesh, Karnataka, Kerala:** This morning is the main Deepavali; the oil bath is mandatory, done by the whole family; sweets and new clothes are central
