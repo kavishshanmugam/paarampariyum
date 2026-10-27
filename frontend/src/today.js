@@ -47,7 +47,7 @@ export async function renderToday(app) {
 
 function renderTodayContent(app, today, panchang, festivals) {
   const todayFestivals = festivals.filter(f => f.date === today);
-  const upcomingFestivals = festivals.filter(f => f.date > today);
+  const upcomingFestivals = festivals.filter(f => f.date > today && app.isFollowed(f.rule_id));
 
   return `
     <!-- Today Header -->

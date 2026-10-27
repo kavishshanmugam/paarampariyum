@@ -33,6 +33,8 @@ class ParamparaApp {
       sect: 'smarta',
       referenceCity: null,
       largeType: false,
+      theme: 'auto',
+      followedObservances: [], // empty = show all
     };
   }
 
@@ -314,6 +316,14 @@ class ParamparaApp {
           </select>
         </div>
 
+        <div class="settings-group">
+          <label class="settings-label">Observances I Follow</label>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">Uncheck to hide from your calendar. All shown if none selected.</div>
+          <div class="follow-grid" id="follow-grid">
+            ${this._renderFollowGrid()}
+          </div>
+        </div>
+
         <button class="settings-save-btn" onclick="app.saveSettings()">Save</button>
 
         <button class="settings-save-btn" style="margin-top:12px; background: var(--text-secondary);" onclick="app.askMyFamily()">Ask My Family (shareable questions)</button>
@@ -338,6 +348,12 @@ class ParamparaApp {
     this.profile.sect = document.getElementById('setting-sect').value;
     this.profile.largeType = document.getElementById('setting-large-type').checked;
     this.profile.theme = document.getElementById('setting-theme').value;
+
+    // Gather followed observances
+    const checks = document.querySelectorAll('#follow-grid input[type="checkbox"]');
+    const allChecked = [...checks].every(c => c.checked);
+    this.profile.followedObservances = allChecked ? [] : [...checks].filter(c => c.checked).map(c => c.value);
+
     this.saveProfile();
 
     document.body.classList.toggle('large-type', this.profile.largeType);
@@ -346,6 +362,11 @@ class ParamparaApp {
 
     // Re-render current view with new settings
     this.navigate(this.currentView);
+  }
+
+  isFollowed(ruleId) {
+    const f = this.profile.followedObservances;
+    return !f || f.length === 0 || f.includes(ruleId);
   }
 
   applyTheme() {
@@ -531,6 +552,29 @@ class ParamparaApp {
     } catch (err) {
       alert('Could not export: ' + err.message);
     }
+  }
+
+  _renderFollowGrid() {
+    const all = [
+      ['naraka-chaturdashi', 'Deepavali'], ['diwali-lakshmi-puja', 'Lakshmi Puja'],
+      ['pongal', 'Pongal'], ['maha-shivaratri', 'Shivaratri'],
+      ['navaratri-golu', 'Navaratri Golu'], ['ganesh-chaturthi', 'Vinayagar Chaturthi'],
+      ['karthigai-deepam', 'Karthigai Deepam'], ['thaipusam', 'Thaipusam'],
+      ['skanda-shashthi', 'Skanda Shashthi'], ['ram-navami', 'Rama Navami'],
+      ['ugadi', 'Puthandu/Vishu'], ['onam', 'Onam'],
+      ['varalakshmi-vratam', 'Varalakshmi'], ['aadi-perukku', 'Aadi Perukku'],
+      ['ayyappa-mandalam', 'Ayyappa Mandalam'],
+      ['ekadashi', 'Ekadashi'], ['pradosh-vrat', 'Pradosham'],
+      ['sankashti-chaturthi', 'Sankashti'], ['purnima', 'Purnima'], ['amavasya', 'Amavasya'],
+    ];
+    const followed = this.profile.followedObservances || [];
+    const showAll = followed.length === 0;
+    return all.map(([id, name]) => `
+      <label class="follow-item">
+        <input type="checkbox" value="${id}" ${showAll || followed.includes(id) ? 'checked' : ''}>
+        <span>${name}</span>
+      </label>
+    `).join('');
   }
 
   openSearch() {
