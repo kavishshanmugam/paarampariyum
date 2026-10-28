@@ -29,7 +29,7 @@ class ParamparaApp {
     if (saved) return JSON.parse(saved);
     return {
       location: { lat: -37.8136, lon: 144.9631, timezone: 'Australia/Melbourne', name: 'Melbourne' },
-      monthSystem: 'purnimanta',
+      monthSystem: 'amanta',
       sect: 'smarta',
       referenceCity: null,
       largeType: false,
@@ -287,8 +287,8 @@ class ParamparaApp {
         <div class="settings-group">
           <label class="settings-label">Month System</label>
           <select id="setting-month-system" class="settings-select">
-            <option value="purnimanta" ${this.profile.monthSystem === 'purnimanta' ? 'selected' : ''}>Purnimanta (North India)</option>
-            <option value="amanta" ${this.profile.monthSystem === 'amanta' ? 'selected' : ''}>Amanta (South & West India)</option>
+            <option value="amanta" ${this.profile.monthSystem === 'amanta' ? 'selected' : ''}>Amanta (South Indian, recommended)</option>
+            <option value="purnimanta" ${this.profile.monthSystem === 'purnimanta' ? 'selected' : ''}>Purnimanta (North Indian)</option>
           </select>
         </div>
 
