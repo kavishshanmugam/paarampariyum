@@ -557,8 +557,11 @@ class ParamparaApp {
   _renderFollowGrid() {
     const all = [
       ['naraka-chaturdashi', 'Deepavali'], ['diwali-lakshmi-puja', 'Lakshmi Puja'],
-      ['pongal', 'Pongal'], ['maha-shivaratri', 'Shivaratri'],
-      ['navaratri-golu', 'Navaratri Golu'], ['ganesh-chaturthi', 'Vinayagar Chaturthi'],
+      ['bhogi-pongal', 'Bhogi Pongal'], ['pongal', 'Thai Pongal'],
+      ['mattu-pongal', 'Mattu Pongal'], ['kaanum-pongal', 'Kaanum Pongal'],
+      ['maha-shivaratri', 'Shivaratri'],
+      ['navaratri-golu', 'Navaratri Golu'], ['vijayadashami', 'Vijayadashami'],
+      ['ganesh-chaturthi', 'Vinayagar Chaturthi'],
       ['karthigai-deepam', 'Karthigai Deepam'], ['thaipusam', 'Thaipusam'],
       ['skanda-shashthi', 'Skanda Shashthi'], ['ram-navami', 'Rama Navami'],
       ['ugadi', 'Puthandu/Vishu'], ['onam', 'Onam'],
@@ -610,7 +613,8 @@ class ParamparaApp {
       'maha-shivaratri': 'Maha Shivaratri', 'ram-navami': 'Sri Rama Navami',
       'ganesh-chaturthi': 'Vinayagar Chaturthi', 'pongal': 'Pongal',
       'onam': 'Onam', 'ugadi': 'Ugadi / Puthandu / Vishu',
-      'navaratri-golu': 'Navaratri Golu', 'karthigai-deepam': 'Karthigai Deepam',
+      'navaratri-golu': 'Navaratri Golu', 'vijayadashami': 'Vijayadashami (Saraswati Puja)',
+      'karthigai-deepam': 'Karthigai Deepam',
       'thaipusam': 'Thaipusam', 'skanda-shashthi': 'Skanda Shashthi',
       'varalakshmi-vratam': 'Varalakshmi Vratam',
       'aadi-perukku': 'Aadi Perukku', 'ayyappa-mandalam': 'Ayyappa Mandalam',

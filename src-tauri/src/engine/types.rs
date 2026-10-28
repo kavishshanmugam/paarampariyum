@@ -357,6 +357,21 @@ pub struct LunarMonthInfo {
     pub year_shaka: u16,
 }
 
+/// A time window (start, end) in local hours from midnight
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TimeRange {
+    pub start: f64,
+    pub end: f64,
+}
+
+/// Inauspicious time periods computed from sunrise/sunset and weekday
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InauspiciousPeriods {
+    pub rahu_kalam: Option<TimeRange>,
+    pub yamagandam: Option<TimeRange>,
+    pub gulika_kalam: Option<TimeRange>,
+}
+
 /// Complete panchang data for one day
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DayPanchang {
@@ -371,6 +386,7 @@ pub struct DayPanchang {
     pub paksha: Paksha,
     pub lunar_month: LunarMonthInfo,
     pub weekday: Weekday,
+    pub inauspicious: InauspiciousPeriods,
 }
 
 impl DayPanchang {

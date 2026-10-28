@@ -60,7 +60,7 @@ pub enum RuleBasis {
     /// Fixed day offset from a solar transit (e.g. Aadi Perukku = Cancer + 17 days)
     SolarOffset {
         rashi: u8,
-        day_offset: u16,
+        day_offset: i16,
         description: String,
     },
 }
@@ -539,10 +539,25 @@ pub fn default_rules() -> Vec<FestivalRule> {
         },
 
         // === MAJOR FESTIVALS ===
+        // === PONGAL (4-day sequence) ===
+        FestivalRule {
+            id: "bhogi-pongal".into(),
+            name: "Bhogi Pongal".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("போகிப் பொங்கல்".into()),
+            festival_type: FestivalType::SolarTransit,
+            basis: RuleBasis::SolarOffset {
+                rashi: 9, // Capricorn
+                day_offset: -1, // Day before Thai Pongal
+                description: "Day before Thai Pongal -- Bhogi; discard old things, light bonfires".into(),
+            },
+            reason_template: "Day before Thai Pongal -- Bhogi".into(),
+            variants: vec![],
+            sequence: Some(FestivalSequence { group: "pongal".into(), day: 1, total: 4 }),
+        },
         FestivalRule {
             id: "pongal".into(),
-            name: "Pongal".into(),
-            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0BAA}\u{0BCA}\u{0B99}\u{0BCD}\u{0B95}\u{0BB2}\u{0BCD}".into()), // பொங்கல்
+            name: "Thai Pongal".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("தைப் பொங்கல்".into()),
             festival_type: FestivalType::SolarTransit,
             basis: RuleBasis::Solar {
                 rashi: 9, // Capricorn (Makara) -- Thai Pongal
@@ -550,7 +565,35 @@ pub fn default_rules() -> Vec<FestivalRule> {
             },
             reason_template: "Sun enters sidereal Capricorn -- Pongalo Pongal!".into(),
             variants: vec![],
-            sequence: None,
+            sequence: Some(FestivalSequence { group: "pongal".into(), day: 2, total: 4 }),
+        },
+        FestivalRule {
+            id: "mattu-pongal".into(),
+            name: "Mattu Pongal".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("மாட்டுப் பொங்கல்".into()),
+            festival_type: FestivalType::SolarTransit,
+            basis: RuleBasis::SolarOffset {
+                rashi: 9,
+                day_offset: 1,
+                description: "Day after Thai Pongal -- Mattu Pongal; honour cattle and farm animals".into(),
+            },
+            reason_template: "Day after Thai Pongal -- Mattu Pongal".into(),
+            variants: vec![],
+            sequence: Some(FestivalSequence { group: "pongal".into(), day: 3, total: 4 }),
+        },
+        FestivalRule {
+            id: "kaanum-pongal".into(),
+            name: "Kaanum Pongal".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("காணும் பொங்கல்".into()),
+            festival_type: FestivalType::SolarTransit,
+            basis: RuleBasis::SolarOffset {
+                rashi: 9,
+                day_offset: 2,
+                description: "Two days after Thai Pongal -- Kaanum Pongal; family outings and brother-sister bond".into(),
+            },
+            reason_template: "Two days after Thai Pongal -- Kaanum Pongal".into(),
+            variants: vec![],
+            sequence: Some(FestivalSequence { group: "pongal".into(), day: 4, total: 4 }),
         },
         FestivalRule {
             id: "maha-shivaratri".into(),
@@ -632,6 +675,24 @@ pub fn default_rules() -> Vec<FestivalRule> {
             reason_template: "{tithi} of {paksha} Paksha in {month} -- Navaratri begins; Golu display and Devi worship".into(),
             variants: vec![],
             sequence: Some(FestivalSequence { group: "navaratri".into(), day: 1, total: 10 }),
+        },
+        // Vijayadashami / Saraswati Puja -- 10th day of Navaratri
+        FestivalRule {
+            id: "vijayadashami".into(),
+            name: "Vijayadashami".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("விஜயதசமி".into()),
+            festival_type: FestivalType::MajorFestival,
+            basis: RuleBasis::Lunar {
+                month: Some(LunarMonth::Ashvina),
+                paksha: Paksha::Shukla,
+                tithi: TithiName::Dashami,
+                must_prevail_during: TimeWindow::Sunrise,
+                tie_break: TieBreak::NextDay,
+                adhik_maas: AdhikMaasBehaviour::Skip,
+            },
+            reason_template: "{tithi} of {paksha} Paksha -- Vijayadashami; Vidyarambham, victory of good over evil".into(),
+            variants: vec![],
+            sequence: Some(FestivalSequence { group: "navaratri".into(), day: 10, total: 10 }),
         },
         FestivalRule {
             id: "skanda-shashthi".into(),
@@ -754,7 +815,7 @@ mod tests {
     #[test]
     fn test_default_rules_count() {
         let rules = default_rules();
-        assert!(rules.len() >= 20, "Should have at least 20 default rules, got {}", rules.len());
+        assert!(rules.len() >= 24, "Should have at least 24 default rules, got {}", rules.len());
     }
 
     #[test]

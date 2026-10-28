@@ -122,6 +122,25 @@ function renderTodayContent(app, today, panchang, festivals, monthFestivals) {
       </div>
     </div>
 
+    <!-- Inauspicious Periods -->
+    ${panchang.inauspicious?.rahu_kalam ? `
+    <div class="info-card">
+      <h3>Inauspicious Periods</h3>
+      <div class="info-row">
+        <span class="info-label" style="color:var(--error);">Rahu Kalam</span>
+        <span class="info-value">${formatTime(panchang.inauspicious.rahu_kalam.start)} - ${formatTime(panchang.inauspicious.rahu_kalam.end)}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Yamagandam</span>
+        <span class="info-value">${formatTime(panchang.inauspicious.yamagandam?.start)} - ${formatTime(panchang.inauspicious.yamagandam?.end)}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Gulika Kalam</span>
+        <span class="info-value">${formatTime(panchang.inauspicious.gulika_kalam?.start)} - ${formatTime(panchang.inauspicious.gulika_kalam?.end)}</span>
+      </div>
+    </div>
+    ` : ''}
+
     <!-- Lunar Calendar Info -->
     <div class="info-card">
       <h3>Calendar</h3>
@@ -369,6 +388,13 @@ window._copyWeeklyDigest = async function() {
       ``,
     ];
 
+    if (panchang.inauspicious?.rahu_kalam) {
+      lines.push(`Inauspicious Periods:`);
+      lines.push(`  Rahu Kalam: ${formatTime(panchang.inauspicious.rahu_kalam.start)} - ${formatTime(panchang.inauspicious.rahu_kalam.end)}`);
+      lines.push(`  Yamagandam: ${formatTime(panchang.inauspicious.yamagandam?.start)} - ${formatTime(panchang.inauspicious.yamagandam?.end)}`);
+      lines.push(``);
+    }
+
     if (festivals.length > 0) {
       lines.push(`This Week:`);
       for (const f of festivals) {
@@ -522,6 +548,11 @@ function mockPanchang(date) {
     paksha: 'Krishna',
     lunar_month: { month: 'Ashvina', is_adhik: false, year_vikram: 2083, year_shaka: 1948 },
     weekday: 'Wed',
+    inauspicious: {
+      rahu_kalam: { start: 12.0, end: 13.5 },
+      yamagandam: { start: 7.5, end: 9.0 },
+      gulika_kalam: { start: 9.0, end: 10.5 },
+    },
   };
 }
 
