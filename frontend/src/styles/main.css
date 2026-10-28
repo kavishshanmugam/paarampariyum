@@ -1767,6 +1767,14 @@ body {
 .year-festival-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .year-festival-date { color: var(--text-muted); font-size: 10px; }
 
+/* === Tamil Month === */
+.today-tamil-month {
+  font-size: 13px;
+  color: var(--primary);
+  font-family: var(--font-indic);
+  margin-top: 2px;
+}
+
 /* === Festival Alert Banner === */
 .festival-alert-banner {
   background: linear-gradient(135deg, #c05621, #ed8936);

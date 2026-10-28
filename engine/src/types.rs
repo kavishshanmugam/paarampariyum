@@ -357,6 +357,35 @@ pub struct LunarMonthInfo {
     pub year_shaka: u16,
 }
 
+/// Tamil solar month (based on sun's sidereal rashi)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TamilMonth {
+    pub name: String,
+    pub name_ta: String,
+    pub rashi_index: u8,
+}
+
+impl TamilMonth {
+    pub fn from_rashi(rashi: u8) -> Self {
+        let names: [(&str, &str); 12] = [
+            ("Chithirai", "சித்திரை"),     // Mesha
+            ("Vaikasi", "வைகாசி"),         // Rishabha
+            ("Aani", "ஆனி"),               // Mithuna
+            ("Aadi", "ஆடி"),               // Kataka
+            ("Aavani", "ஆவணி"),            // Simha
+            ("Purattasi", "புரட்டாசி"),      // Kanya
+            ("Aippasi", "ஐப்பசி"),          // Thula
+            ("Karthigai", "கார்த்திகை"),     // Vrischika
+            ("Margazhi", "மார்கழி"),         // Dhanus
+            ("Thai", "தை"),                 // Makara
+            ("Masi", "மாசி"),               // Kumbha
+            ("Panguni", "பங்குனி"),          // Meena
+        ];
+        let idx = (rashi % 12) as usize;
+        TamilMonth { name: names[idx].0.to_string(), name_ta: names[idx].1.to_string(), rashi_index: rashi }
+    }
+}
+
 /// A time window (start, end) in local hours from midnight
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TimeRange {
@@ -387,6 +416,7 @@ pub struct DayPanchang {
     pub lunar_month: LunarMonthInfo,
     pub weekday: Weekday,
     pub inauspicious: InauspiciousPeriods,
+    pub tamil_month: TamilMonth,
 }
 
 impl DayPanchang {

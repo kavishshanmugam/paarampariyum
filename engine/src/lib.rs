@@ -45,6 +45,10 @@ pub fn get_panchang(date: chrono::NaiveDate, location: &Location, conventions: &
 
     let inauspicious = compute_inauspicious_periods(sunrise, sunset, date.weekday());
 
+    // Tamil solar month from sun's sidereal rashi
+    let sun_lon = sun_sidereal_longitude(jd);
+    let tamil_month = TamilMonth::from_rashi((sun_lon / 30.0).floor() as u8);
+
     DayPanchang {
         date,
         sunrise,
@@ -58,6 +62,7 @@ pub fn get_panchang(date: chrono::NaiveDate, location: &Location, conventions: &
         lunar_month,
         weekday: date.weekday(),
         inauspicious,
+        tamil_month,
     }
 }
 

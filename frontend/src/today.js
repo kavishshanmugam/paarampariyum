@@ -79,6 +79,7 @@ function renderTodayContent(app, today, panchang, festivals, monthFestivals) {
         <div>
           <div class="today-tithi">${panchang.tithi?.name || 'Loading...'}</div>
           <div class="today-paksha">${panchang.paksha || ''} Paksha &middot; ${panchang.lunar_month?.month || ''}</div>
+          ${panchang.tamil_month ? `<div class="today-tamil-month">${panchang.tamil_month.name_ta} (${panchang.tamil_month.name})</div>` : ''}
         </div>
       </div>
       <div class="today-date">${app.formatDate(today)}</div>
@@ -141,9 +142,15 @@ function renderTodayContent(app, today, panchang, festivals, monthFestivals) {
     </div>
     ` : ''}
 
-    <!-- Lunar Calendar Info -->
+    <!-- Calendar Info -->
     <div class="info-card">
       <h3>Calendar</h3>
+      ${panchang.tamil_month ? `
+      <div class="info-row">
+        <span class="info-label">Tamil Month</span>
+        <span class="info-value" style="font-family:var(--font-indic);">${panchang.tamil_month.name_ta} (${panchang.tamil_month.name})</span>
+      </div>
+      ` : ''}
       <div class="info-row">
         <span class="info-label">Lunar Month</span>
         <span class="info-value">${panchang.lunar_month?.month || '-'}${panchang.lunar_month?.is_adhik ? ' (Adhik)' : ''}</span>
@@ -548,6 +555,7 @@ function mockPanchang(date) {
     paksha: 'Krishna',
     lunar_month: { month: 'Ashvina', is_adhik: false, year_vikram: 2083, year_shaka: 1948 },
     weekday: 'Wed',
+    tamil_month: { name: 'Aippasi', name_ta: 'ஐப்பசி', rashi_index: 6 },
     inauspicious: {
       rahu_kalam: { start: 12.0, end: 13.5 },
       yamagandam: { start: 7.5, end: 9.0 },
