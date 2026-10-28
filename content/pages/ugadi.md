@@ -115,6 +115,26 @@ Raw green mangoes are available at Indian/Sri Lankan grocers in season (November
 
 **Seasonal.** In India, mid-April marks the transition to summer and the beginning of the agricultural year. In Melbourne, April is autumn -- the season mapping is reversed, but the new-beginning energy translates.
 
+## Prayers and Mantras
+
+### Vinayagar Vandana
+**Tamil:** ஓம் கம் கணபதயே நமஹ
+**Transliteration:** Om Gam Ganapataye Namaha
+**Meaning:** "Om, salutations to Ganapati."
+Every new beginning in Hindu tradition starts with Vinayagar. This mantra is chanted at the start of the new year before any other prayer, to remove obstacles for the year ahead.
+
+### Panchanga Shravanam Prayer
+**Tamil:** ஸர்வாரிஷ்ட ப்ரசமனம் ஸர்வ சுப பலப்ரதம் | சர்வ பாப ப்ரசமனம் பஞ்சாங்க ஶ்ரவணம் ஶுபம் ||
+**Transliteration:** Sarvarishta Prashamanam Sarva Shubha Phala Pradam | Sarva Papa Prashamanam Panchanga Shravanam Shubham
+**Meaning:** "Listening to the Panchanga quells all calamities, grants all auspicious results, and removes all sins."
+Recited before the ritual reading of the new year's almanac (Panchanga Shravanam), a key Ugadi tradition where a priest reads the forecast for the coming year.
+
+### Auspicious Beginning Mantra
+**Tamil:** ஓம் சர்வமங்கல மாங்கல்யே ஶிவே சர்வார்த்த சாதிகே | ஶரண்யே த்ர்யம்பகே கௌரி நாராயணி நமோஸ்துதே ||
+**Transliteration:** Om Sarva Mangala Mangalye Shive Sarvartha Sadhike | Sharanye Tryambake Gauri Narayani Namostute
+**Meaning:** "O auspicious of all that is auspicious, O consort of Shiva, who fulfils all purposes — O refuge, three-eyed Gauri, Narayani, I bow to you."
+From the Devi Mahatmyam. A universal prayer for auspicious beginnings, widely chanted on new year mornings across South Indian traditions.
+
 ## How others do it
 
 - **Tamil Nadu:** Puthandu with Kanni tray and Mango Pachadi

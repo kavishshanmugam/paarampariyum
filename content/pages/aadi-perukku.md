@@ -81,6 +81,26 @@ August is mid-winter with cold water, so the water-play aspect may be limited, b
 
 **Seasonal.** In Tamil Nadu, Aadi is peak monsoon. In Melbourne, August has good rainfall -- the water-abundance metaphor maps reasonably well.
 
+## Prayers and Mantras
+
+### Nadi Stuti (River Invocation)
+**Tamil:** ஓம் கங்கே ச யமுனே சைவ கோதாவரி சரஸ்வதி | நர்மதே சிந்து காவேரி ஜலேஸ்மின் சந்நிதிம் குரு ||
+**Transliteration:** Om Gange Cha Yamune Chaiva Godavari Saraswati | Narmade Sindhu Kaveri Jalesmin Sannidhim Kuru
+**Meaning:** "O Ganga, Yamuna, Godavari, Saraswati, Narmada, Sindhu, and Kaveri — be present in this water."
+The Sapta Nadi (seven rivers) invocation, traditionally chanted before any sacred water ritual. During Aadi Perukku, this mantra sanctifies the river or water body where offerings are made.
+
+### Saraswati Mantra
+**Tamil:** ஓம் ஐம் சரஸ்வத்யை நமஹ
+**Transliteration:** Om Aim Saraswatyai Namaha
+**Meaning:** "Om, salutations to Saraswati."
+Saraswati is both the goddess of knowledge and the name of a sacred river. During Aadi Perukku, this mantra honours the divine feminine in flowing water — the river as mother, teacher, and sustainer of life.
+
+### Amman Prayer for Prosperity
+**Tamil:** ஓம் ஶ்ரீ ஆதிபராசக்தி அம்மனே நமஹ
+**Transliteration:** Om Shri Adiparashakti Ammanae Namaha
+**Meaning:** "Om, salutations to the supreme primal power, Amman (the Mother)."
+Aadi Perukku is fundamentally a women's festival honouring the Mother Goddess. This mantra is chanted while setting offerings afloat, praying for the fertility of the land and the prosperity of the family.
+
 ## How others do it
 
 - This is a specifically Tamil festival, most prominent along the Kaveri river basin (Thanjavur, Trichy, Kumbakonam districts)

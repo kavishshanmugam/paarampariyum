@@ -106,6 +106,26 @@ A sacred river is not nearby, but the Yarra, Port Phillip Bay, Albert Park Lake,
 
 **Physiological lore.** Ayurvedic texts associate the new moon with a dip in Soma (the nourishing lunar essence). Traditional advice includes eating lightly, sleeping adequately, and avoiding intoxicants. This is a traditional view; make your own judgement.
 
+## Prayers and Mantras
+
+### Pitru Vandana
+**Tamil:** ஓம் பித்ருப்யோ நமஹ
+**Transliteration:** Om Pitrubhyo Namaha
+**Meaning:** "Om, salutations to the ancestors."
+The simplest and most universal ancestor invocation. Chanted before beginning Tarpan or any Pitru-related offering.
+
+### Pitru Tarpanam Mantra
+**Tamil:** அஸ்மத் பித்ரு ப்ரபிதாமஹேப்யோ நம: இதம் திலோதகம் தேஷாம் த்ருப்தயர்த்தம்
+**Transliteration:** Asmat Pitru Prapitamahebhyo Namah — Idam Tilodakam Tesham Truptyartham
+**Meaning:** "Salutations to our fathers and forefathers — this water with sesame is offered for their satisfaction."
+An excerpt from the Tarpan liturgy, recited while pouring water mixed with sesame seeds facing south.
+
+### Mahalakshmi Mantra
+**Tamil:** ஓம் ஶ்ரீம் மஹாலக்ஷ்ம்யை நமஹ
+**Transliteration:** Om Shreem Mahalakshmyai Namaha
+**Meaning:** "Om, salutations to the great Lakshmi."
+In some South Indian traditions, Amavasya nights — especially Diwali Amavasya — are dedicated to Lakshmi worship for prosperity. This mantra is chanted 108 times with a lamp lit.
+
 ## How others do it
 
 - **South India (Tamil tradition):** Amavasai is observed with significant temple visits; Mahalaya Amavasai (in the Tamil month of Purattasi, equivalent to Pitru Paksha Amavasya) is the most important; bathing in the sea or a river at dawn, followed by Tarpan and feeding Brahmins or the poor

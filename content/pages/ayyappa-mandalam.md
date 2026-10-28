@@ -83,6 +83,26 @@ Tulasi malas and black clothing are available at Indian stores. The Sri Siva Vis
 
 **Seasonal.** The pilgrimage season spans November-January, which is summer in Melbourne. The 41-day discipline during the busy Christmas-New Year period requires real commitment in the diaspora.
 
+## Prayers and Mantras
+
+### Saranam Mantra
+**Tamil:** சுவாமியே சரணம் ஐயப்பா
+**Transliteration:** Swamiye Saranam Ayyappa
+**Meaning:** "Lord Ayyappa, I take refuge in you."
+The core mantra of Ayyappa devotion, chanted continuously during the 41-day Mandala Kalam and throughout the Sabarimala pilgrimage. Devotees greet each other with this chant, recognising the divine in every fellow pilgrim.
+
+### Shiva Panchakshara Mantra
+**Tamil:** ஓம் நமச்சிவாய
+**Transliteration:** Om Namah Shivaya
+**Meaning:** "Om, salutations to Shiva."
+The five-syllable mantra of Shiva, Ayyappa's father. Chanted during the Mandala Kalam alongside the Saranam mantra, acknowledging Ayyappa's Shaiva lineage as Hariharaputra (son of Shiva and Vishnu).
+
+### Harivarasanam (Opening Verse)
+**Tamil:** ஹரிவராசனம் விஸ்வமோஹனம் ஹரிததீஶ்வரம் ஆராத்யபாதுகம் | அரிவிமர்த்தனம் நித்யநர்த்தனம் ஹரிஹராத்மஜம் தேவமாஶ்ரயே ||
+**Transliteration:** Harivarasanam Vishvamohanam Haridadeeshvaram Aradhyapadukam | Arivimardhanam Nityanarthanam Hariharatmajam Devam Ashraye
+**Meaning:** "I take refuge in the son of Hari and Hara — he who enchants the universe, who is the lord of Haridasa, whose feet are worthy of worship, who destroys enemies, who dances eternally."
+The famous lullaby sung at Sabarimala every night as the temple closes. Composed by Kambankudi Kulathur Srinivasa Iyer, it is the most recognisable devotional song of the Ayyappa tradition.
+
 ## How others do it
 
 - **Kerala:** The epicentre; Sabarimala is in the Western Ghats; lakhs of pilgrims annually

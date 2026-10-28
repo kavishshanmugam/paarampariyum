@@ -14,11 +14,11 @@
 - [x] Elder Wisdom recording page (voice + speech-to-text)
 - [x] Close-call flags in engine
 - [x] Bundled Noto Sans Devanagari + Tamil fonts
-- [x] Tauri v1.2.0 desktop build (MSI 3.96 MB, NSIS 2.68 MB)
+- [x] Tauri v1.2.0 desktop build
 - [x] Date validation against Drik Panchang (5/5 festivals match)
-- [x] Recipe note type (structured: title, ingredients, method)
-- [x] Admin household management UI (Settings > Manage Households)
-- [x] Voice note transcripts (Web Speech API in event.js + elder.js)
+- [x] Recipe note type
+- [x] Admin household management UI
+- [x] Voice note transcripts (Web Speech API)
 
 ## v1.3 -- Calendar & Guide Polish (COMPLETE)
 - [x] 24-month year view with major festival highlights
@@ -26,11 +26,27 @@
 - [x] Guide depth selector (Simple/Standard/Scholarly)
 - [x] "Ask My Family" shareable questions list
 - [x] Enhanced day detail popup (reasons, variant notes, sunrise/sunset)
+- [x] Dark mode (system default + manual override)
+- [x] Search overlay across all observance pages
+- [x] Moon phase visual on Today view
+- [x] Followed observances (select which festivals to track)
+- [x] 30-day major festival lookahead on Today view
+- [x] Prayers and Mantras on 10 key pages (Tamil script + transliteration)
+- [x] Tauri v1.3.0 build
+
+## v1.4 -- Content Completion + Polish (IN PROGRESS)
+- [x] Onam engine rule (SolarNakshatra rule type -- already done in v1.1)
+- [x] Prayers and Mantras on all 20 pages (Tamil script + transliteration)
+- [x] Items checklist (interactive checkboxes on event pages)
+- [x] Print-friendly panchang (print styles + button)
+- [x] Festival alert banner (today/tomorrow major festival notification)
+- [ ] Notification-style festival reminders on Today view
+- [ ] Print-friendly panchang card
+- [ ] Offline content caching for Tauri
 
 ## Remaining
-- [ ] **P1** Rebuild Tauri with v1.3 frontend
-- [ ] **P1** Onam engine rule (needs SolarNakshatra rule type)
 - [ ] **P2** Mobile builds (iOS TestFlight, Android APK)
 - [ ] **P2** Extend date validation to cover Oct 2026 - Dec 2027 fully
 - [ ] **P2** Travel mode (recompute when location changes)
-- [ ] **P2** Prayers/mantras with transliteration (EVT-10)
+- [ ] **P2** Kids' story mode (EVT-11)
+- [ ] **P2** Voice conversation with guide (AI-9)

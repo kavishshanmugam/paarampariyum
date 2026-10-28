@@ -111,6 +111,26 @@ Satyanarayan Puja books are available at Indian grocers in Dandenong, Footscray,
 
 **Physiological lore.** Traditional Ayurvedic texts (Charaka Samhita, Ashtanga Hridayam) note that the full moon influences tides and body fluids. Fasting or eating lightly on Purnima is recommended as a monthly reset. This is a traditional view; individuals should make their own judgement.
 
+## Prayers and Mantras
+
+### Chandra Beeja Mantra
+**Tamil:** ஓம் சோம் சோமாய நமஹ
+**Transliteration:** Om Som Somaya Namaha
+**Meaning:** "Om, I invoke Soma (the moon deity), salutations to the moon."
+The beeja (seed) mantra of Chandra. "Som" is the moon's beeja syllable, derived from Soma -- the Vedic nectar of immortality associated with the moon. Chanted while offering water (arghya) to the full moon at moonrise on Purnima evenings.
+
+### Chandra Gayatri
+**Tamil:** ஓம் க்ஷீரபுத்ராய வித்மஹே அம்ருததத்வாய தீமஹி | தன்னோ சந்திர ப்ரசோதயாத் ||
+**Transliteration:** Om Kshira Putraya Vidmahe Amritatvaya Dheemahi | Tanno Chandra Prachodayat
+**Meaning:** "Om, we meditate on the son of the milk ocean, the essence of immortality; may that moon inspire and illumine us."
+The Gayatri-metre invocation of Chandra, referencing his emergence during the Samudra Manthan (churning of the cosmic ocean). Chanted during Purnima puja and on Mondays (Somavar), the day sacred to the moon.
+
+### Satyanarayan Mantra
+**Tamil:** ஓம் நமோ பகவதே வாசுதேவாய
+**Transliteration:** Om Namo Bhagavate Vasudevaya
+**Meaning:** "Om, salutations to Lord Vasudeva (Vishnu/Krishna), the supreme being."
+The dwadashakshara (twelve-syllable) mantra of Vishnu, chanted at the beginning and close of the Satyanarayan Puja -- the most common Purnima observance. From the Bhagavata Purana. Purnima is sacred to Vishnu in his form as Satyanarayan (lord of truth), and this mantra is the central invocation of the katha.
+
 ## How others do it
 
 - **South India (Tamil, Telugu, Kannada):** Pournami is observed with temple visits; Pradosha-adjacent purnimas and Karthigai Deepam (Kartika Purnima) are especially important in Tamil tradition

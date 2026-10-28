@@ -107,6 +107,27 @@ Banana leaves are available year-round at Vietnamese/Sri Lankan grocers in Foots
 
 **Seasonal.** In Kerala, Chingam marks the end of the monsoon and the beginning of the harvest. In Melbourne, August-September is late winter turning to spring -- a time of renewal.
 
+## Prayers and Mantras
+
+### Maveli Nadu Vaneedum Kalam
+**Malayalam:** മാവേലി നാടു വാണീടും കാലം / മാനുഷരെല്ലാരും ഒന്നുപോലെ
+**Tamil transliteration:** மாவேலி நாடு வாணீடும் காலம் / மானுஷரெல்லாரும் ஒன்னுபோலே
+**Transliteration:** Maaveli Naadu Vaaneedum Kaalam / Manushyarellarum Onnu Pole
+**Meaning:** "When Maveli ruled the land, all people were equal."
+The iconic Onam folk song celebrating King Mahabali's just reign. Sung during Pookalam preparation and Sadya gatherings, it captures the egalitarian ideal at the heart of Onam.
+
+### Vishnu Mantra
+**Tamil:** ஓம் நமோ நாராயணாய
+**Transliteration:** Om Namo Narayanaya
+**Meaning:** "Om, salutations to Narayana (Vishnu)."
+The Ashtakshara (eight-syllable) mantra of Vishnu. Chanted during Onam to honour Vamana, the dwarf avatar of Vishnu central to the Onam story. This is one of the most sacred Vaishnava mantras, from the Narayana Upanishad.
+
+### Thiruvathira Prayer
+**Tamil:** ஓம் ஶ்ரீ மஹாவிஷ்ணவே நமஹ | த்ரிவிக்ரமாய நமஹ
+**Transliteration:** Om Shri Maha Vishnave Namaha | Trivikramaya Namaha
+**Meaning:** "Om, salutations to the great Vishnu — salutations to Trivikrama (he who covered the three worlds in three steps)."
+Trivikrama is the name of Vishnu in his cosmic form during the Vamana episode. This invocation is used during Onam pujas, acknowledging both Vishnu's power and his compassion toward Mahabali.
+
 ## How others do it
 
 - **Kerala:** Onam is the state festival, celebrated by Hindus, Christians, and Muslims alike as a cultural event

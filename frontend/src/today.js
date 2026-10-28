@@ -49,13 +49,29 @@ export async function renderToday(app) {
 
 function renderTodayContent(app, today, panchang, festivals, monthFestivals) {
   const todayFestivals = festivals.filter(f => f.date === today);
+  const tomorrowStr = addDays(today, 1);
+  const tomorrowFestivals = festivals.filter(f => f.date === tomorrowStr && f.festival_type?.includes('Major'));
   const upcomingFestivals = festivals.filter(f => f.date > today && app.isFollowed(f.rule_id));
   // Major festivals in the next 30 days (beyond this week)
   const upcomingMajor = (monthFestivals || []).filter(f =>
     app.isFollowed(f.rule_id) && f.festival_type?.includes('Major')
   );
 
+  // Festival alert banner for major festivals today or tomorrow
+  const alertBanner = todayFestivals.some(f => f.festival_type?.includes('Major'))
+    ? `<div class="festival-alert-banner">
+        <span class="festival-alert-icon">🪔</span>
+        <span>${todayFestivals.filter(f => f.festival_type?.includes('Major')).map(f => f.name).join(' & ')} today!</span>
+      </div>`
+    : tomorrowFestivals.length > 0
+    ? `<div class="festival-alert-banner tomorrow">
+        <span class="festival-alert-icon">🔔</span>
+        <span>${tomorrowFestivals.map(f => f.name).join(' & ')} tomorrow!</span>
+      </div>`
+    : '';
+
   return `
+    ${alertBanner}
     <!-- Today Header -->
     <div class="today-header">
       <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
@@ -206,7 +222,12 @@ function renderTodayContent(app, today, panchang, festivals, monthFestivals) {
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8v5h8V8M8 2v8M5 5l3-3 3 3"/></svg>
         Share today's panchang
       </button>
+      <button class="today-action-btn" onclick="window.print()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="10" height="7" rx="1"/><path d="M5 6V3h6v3"/><circle cx="11" cy="8.5" r="0.5" fill="currentColor"/></svg>
+        Print panchang
+      </button>
     </div>
+    <div class="print-footer">Parampara &middot; Melbourne &middot; Lahiri Ayanamsa</div>
   `;
 }
 

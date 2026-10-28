@@ -102,6 +102,26 @@ Indian grocers in Footscray, Dandenong, and Box Hill carry diyas, incense, rango
 
 *Evidence grade: Caution. Sources: [48] Scientific Reports 2026, [50] Atmospheric Environment*
 
+## Prayers and Mantras
+
+### Lakshmi Beeja Mantra
+**Tamil:** ஓம் ஸ்ரீம் மஹாலக்ஷ்மியை நமஹ
+**Transliteration:** Om Shreem Mahalakshmiyei Namaha
+**Meaning:** "Om, I invoke the auspicious energy of the great Lakshmi, salutations to her."
+The primary beeja (seed) mantra of Lakshmi. "Shreem" is Lakshmi's beeja syllable, representing abundance and auspiciousness. Chanted 108 times during the Deepavali puja or as a daily invocation.
+
+### Sarva Mangala Mangalye
+**Tamil:** சர்வ மங்கள மாங்கல்யே சிவே சர்வார்த்த சாதிகே | சரண்யே த்ர்யம்பகே கௌரி நாராயணி நமோஸ்துதே ||
+**Transliteration:** Sarva Mangala Mangalye Shive Sarvartha Sadhike | Sharanye Tryambake Gauri Narayani Namostute
+**Meaning:** "O auspicious one, who grants all that is good, O consort of Shiva who fulfils all aims -- I take refuge in you, O three-eyed Gauri, salutations to you, Narayani."
+From the Devi Mahatmyam (Markandeya Purana). A universal prayer to the Goddess for auspiciousness, recited at the close of Lakshmi puja and other Devi worship.
+
+### Lakshmi Gayatri
+**Tamil:** ஓம் மஹாலக்ஷ்ம்யை ச வித்மஹே விஷ்ணு பத்ன்யை ச தீமஹி | தன்னோ லக்ஷ்மீ ப்ரசோதயாத் ||
+**Transliteration:** Om Mahalakshmyai Cha Vidmahe Vishnu Patnyai Cha Dheemahi | Tanno Lakshmi Prachodayat
+**Meaning:** "Om, we meditate on the great Lakshmi, the consort of Vishnu; may that Lakshmi inspire and illumine us."
+The Gayatri-metre invocation of Lakshmi, used during formal puja and homa (fire ceremony). Chanted at sunrise or during the evening Deepavali puja.
+
 ## How others do it
 
 - **Bengal:** Kali Puja on the same night, with worship of the Goddess in her fierce form

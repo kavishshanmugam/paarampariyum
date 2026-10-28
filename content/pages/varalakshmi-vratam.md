@@ -86,6 +86,26 @@ Most items are standard at Indian grocers in Dandenong, Footscray, and Glen Wave
 
 **Symbolic.** The nine knots = nine forms of Lakshmi. The thread on the wrist = Lakshmi's protection. The kalasham = the ocean from which Lakshmi emerged.
 
+## Prayers and Mantras
+
+### Ashtalakshmi Mantra
+**Tamil:** ஓம் ஸ்ரீம் ஹ்ரீம் க்லீம் மஹாலக்ஷ்மியை நமஹ
+**Transliteration:** Om Shreem Hreem Kleem Mahalakshmiyei Namaha
+**Meaning:** "Om, I invoke the energies of abundance (Shreem), divine grace (Hreem), and attraction (Kleem) -- salutations to the great Lakshmi."
+A compound beeja mantra invoking the Ashtalakshmi (eight forms of Lakshmi). Each beeja syllable represents a different aspect of Lakshmi's blessings. Chanted during the Varalakshmi puja while offering flowers at each of the nine knots of the saradu.
+
+### Varalakshmi Prayer Verse
+**Tamil:** பத்மாசனே பத்மகரே சர்வலோகைக பூஜிதே | நாராயணி நமஸ்துப்யம் நமஸ்தே சர்வமங்களே ||
+**Transliteration:** Padmasane Padmakare Sarvalokaikha Poojite | Narayani Namastubhyam Namaste Sarva Mangale
+**Meaning:** "O she who is seated on the lotus, who holds lotuses in her hands, who is worshipped by all the worlds -- salutations to you, Narayani, O most auspicious one."
+A verse from the Lakshmi Stotram recited during the Varalakshmi Vratam puja. Traditionally chanted while performing the archana (offering flowers with each name) to the kalasham.
+
+### Lakshmi Ashtothram (108 Names -- Opening Invocation)
+**Tamil:** ஓம் ப்ரக்ருத்யை நமஹ | ஓம் விக்ருத்யை நமஹ | ஓம் வித்யாயை நமஹ |
+**Transliteration:** Om Prakrutyai Namaha | Om Vikrutyai Namaha | Om Vidyayai Namaha
+**Meaning:** "Salutations to her who is Primordial Nature | Salutations to her who transforms | Salutations to her who is Knowledge."
+The opening three of the 108 names of Lakshmi (Sri Lakshmi Ashtottara Shatanamavali). The full 108 names are recited during Varalakshmi Vratam while offering flowers or akshata (turmeric rice) at each name. The Ashtothram is from the Padma Purana.
+
 ## How others do it
 
 - **Tamil Nadu:** Strong observance; saradu thread is central; elaborate kolam

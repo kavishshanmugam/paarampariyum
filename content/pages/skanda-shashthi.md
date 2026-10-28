@@ -81,6 +81,26 @@ Audio and video of Kanda Sashti Kavasam is freely available on YouTube and Spoti
 
 **Symbolic.** Soorapadman = the ego that takes many forms to evade destruction. The mango tree form = ego disguised as natural/normal. The Vel = discriminative wisdom (viveka) that pierces all disguises.
 
+## Prayers and Mantras
+
+### Shadakshara Mantra (Six-Syllable Mantra)
+**Tamil:** ஓம் சரவணபவ
+**Transliteration:** Om Saravana Bhava
+**Meaning:** "Om, he who was born in the Saravana lake (among the six-star clusters)."
+Murugan's most sacred mantra, encoding his origin from the six sparks of Shiva's third eye that fell into the Saravana lake and became six infants, later united as Shanmukha (six-faced). Chanted 108 times during Skanda Shashthi and daily Murugan worship. In Tamil Shaiva tradition, "Saravana Bhava" is considered the supreme mantra -- Murugan himself whispered its meaning into Shiva's ear at Swamimalai.
+
+### Shanmukha Gayatri
+**Tamil:** ஓம் தத்புருஷாய வித்மஹே மஹாசேனாய தீமஹி | தன்னோ ஷண்முக ப்ரசோதயாத் ||
+**Transliteration:** Om Tatpurushaya Vidmahe Mahasenaya Dheemahi | Tanno Shanmukha Prachodayat
+**Meaning:** "Om, we meditate on the supreme being, the great commander of the divine army; may that six-faced one inspire and illumine us."
+The Gayatri-metre invocation of Murugan, used in formal temple and home puja. "Mahasena" (great commander) refers to Murugan's role as the general of the Devas in the war against Soorapadman.
+
+### Kandha Sashti Kavasam (Opening Verse)
+**Tamil:** அமரர் இடர் தீர அமரம் புரிந்த குமரனடி நெஞ்சே குறி
+**Transliteration:** Amarar idar theera amaram purintha kumaranaip potruthuthal naal kadan
+**Meaning:** "It is our daily duty to praise the feet of Kumara (Murugan), who waged war to end the suffering of the Devas."
+The invocatory verse of the Kanda Sashti Kavasam by Devaraya Swamigal (19th century). The full Kavasam is a protective armour-hymn describing Murugan's Vel guarding every part of the devotee's body. Recited six times daily during the six days of Skanda Shashthi, and widely recited as a daily prayer in Tamil households.
+
 ## How others do it
 
 - **Tamil Nadu:** Major temples (Tiruchendur, Palani, Tiruttani) have elaborate 6-day festivals with Soorasamharam

@@ -87,6 +87,26 @@ The Sri Siva Vishnu Temple in Carrum Downs, the Swaminarayan Temple in Glen Wave
 
 **Hanuman's role.** Ram Navami is inseparable from Hanuman -- the ideal devotee. The day recalls not just Rama's birth but the bhakti relationship between them. This is why Hanuman Chalisa is often recited on this day too.
 
+## Prayers and Mantras
+
+### Sri Rama Rama Rameti
+**Tamil:** ஸ்ரீ ராம ராம ராமேதி ரமே ராமே மனோரமே | சஹஸ்ரநாம தத்துல்யம் ராமநாம வரானனே ||
+**Transliteration:** Sri Rama Rama Rameti Rame Rame Manorame | Sahasranama Tat Tulyam Rama Nama Varanane
+**Meaning:** "By chanting 'Sri Rama, Rama, Rama,' the mind delights; chanting the name of Rama is equal to reciting the thousand names of Vishnu."
+From the Vishnu Sahasranama Phala Shruti (Anushasana Parva, Mahabharata). Shiva tells Parvati that the name of Rama is equivalent to the entire Sahasranama. One of the most widely recited verses in Vaishnavism.
+
+### Rama Moola Mantra
+**Tamil:** ஓம் ஸ்ரீ ராமாய நமஹ
+**Transliteration:** Om Sri Ramaya Namaha
+**Meaning:** "Om, salutations to the auspicious Rama."
+The basic salutation mantra of Rama, suitable for japa (repetitive chanting). Chanted 108 times during the midday puja on Ram Navami, or as a daily practice.
+
+### Rama Gayatri
+**Tamil:** ஓம் தாசரதாய வித்மஹே சீதா வல்லபாய தீமஹி | தன்னோ ராம ப்ரசோதயாத் ||
+**Transliteration:** Om Dasharathaye Vidmahe Sita Vallabhaya Dheemahi | Tanno Rama Prachodayat
+**Meaning:** "Om, we meditate on the son of Dasharatha, the beloved of Sita; may that Rama inspire and illumine us."
+The Gayatri-metre invocation of Rama, used in formal puja. Chanted during the noon worship on Ram Navami when the birth moment is celebrated.
+
 ## How others do it
 
 - **Ayodhya:** A ten-day mela (fair); the Ram Janmabhoomi temple draws enormous pilgrimage; grand procession (shobha yatra) with tableau of Ramayana scenes
