@@ -156,6 +156,9 @@ export async function renderEventPage(app, eventId, eventName) {
     </div>
   `;
 
+  // Convert items lists to interactive checklists
+  makeItemsCheckable(eventId);
+
   // Load family notes asynchronously
   loadFamilyNotes(eventId);
 }
@@ -674,6 +677,55 @@ function parseSections(body) {
   }
   if (current) sections.push(current);
   return sections;
+}
+
+// ponytail: localStorage checklist, no state lib
+function makeItemsCheckable(eventId) {
+  const key = `parampara-checklist-${eventId}`;
+  const checked = JSON.parse(localStorage.getItem(key) || '[]');
+
+  // Find all "Items needed" details sections
+  document.querySelectorAll('.event-details').forEach(details => {
+    const summary = details.querySelector('summary');
+    if (!summary || !summary.textContent.includes('Items needed')) return;
+
+    const lis = details.querySelectorAll('li');
+    lis.forEach((li, idx) => {
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = checked.includes(idx);
+      cb.style.cssText = 'margin-right:6px;accent-color:var(--primary);';
+      cb.addEventListener('change', () => {
+        const curr = JSON.parse(localStorage.getItem(key) || '[]');
+        if (cb.checked) { if (!curr.includes(idx)) curr.push(idx); }
+        else { const i = curr.indexOf(idx); if (i >= 0) curr.splice(i, 1); }
+        localStorage.setItem(key, JSON.stringify(curr));
+        li.style.opacity = cb.checked ? '0.5' : '1';
+        li.style.textDecoration = cb.checked ? 'line-through' : 'none';
+      });
+      li.prepend(cb);
+      if (checked.includes(idx)) {
+        li.style.opacity = '0.5';
+        li.style.textDecoration = 'line-through';
+      }
+    });
+
+    // Add clear button
+    if (lis.length > 0) {
+      const clearBtn = document.createElement('button');
+      clearBtn.textContent = 'Clear all';
+      clearBtn.style.cssText = 'font-size:11px;color:var(--text-muted);background:none;border:none;cursor:pointer;margin-top:6px;';
+      clearBtn.onclick = () => {
+        localStorage.removeItem(key);
+        lis.forEach(li => {
+          li.querySelector('input').checked = false;
+          li.style.opacity = '1';
+          li.style.textDecoration = 'none';
+        });
+      };
+      details.querySelector('.event-details-body')?.appendChild(clearBtn);
+    }
+  });
 }
 
 function renderSection(section) {
