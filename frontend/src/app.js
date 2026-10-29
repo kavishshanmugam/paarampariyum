@@ -587,7 +587,8 @@ class ParamparaApp {
       'sankashti-chaturthi', 'purnima', 'amavasya', 'maha-shivaratri', 'ram-navami',
       'ganesh-chaturthi', 'pongal', 'onam', 'ugadi', 'navaratri-golu',
       'karthigai-deepam', 'thaipusam', 'skanda-shashthi', 'varalakshmi-vratam',
-      'aadi-perukku', 'ayyappa-mandalam',
+      'aadi-perukku', 'ayyappa-mandalam', 'vijayadashami',
+      'bhogi-pongal', 'mattu-pongal', 'kaanum-pongal',
     ];
 
     const overlay = document.createElement('div');
@@ -618,6 +619,8 @@ class ParamparaApp {
       'thaipusam': 'Thaipusam', 'skanda-shashthi': 'Skanda Shashthi',
       'varalakshmi-vratam': 'Varalakshmi Vratam',
       'aadi-perukku': 'Aadi Perukku', 'ayyappa-mandalam': 'Ayyappa Mandalam',
+      'bhogi-pongal': 'Bhogi Pongal', 'mattu-pongal': 'Mattu Pongal',
+      'kaanum-pongal': 'Kaanum Pongal',
     };
 
     const input = overlay.querySelector('#search-input');

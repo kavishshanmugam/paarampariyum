@@ -34,15 +34,22 @@
 - [x] Prayers and Mantras on 10 key pages (Tamil script + transliteration)
 - [x] Tauri v1.3.0 build
 
-## v1.4 -- Content Completion + Polish (IN PROGRESS)
+## v1.4 -- Tamil Identity + Engine Enhancement (IN PROGRESS)
 - [x] Onam engine rule (SolarNakshatra rule type -- already done in v1.1)
 - [x] Prayers and Mantras on all 20 pages (Tamil script + transliteration)
 - [x] Items checklist (interactive checkboxes on event pages)
 - [x] Print-friendly panchang (print styles + button)
 - [x] Festival alert banner (today/tomorrow major festival notification)
-- [ ] Notification-style festival reminders on Today view
-- [ ] Print-friendly panchang card
-- [ ] Offline content caching for Tauri
+- [x] Rahu Kalam, Yamagandam, Gulika Kalam on Today view
+- [x] Tamil solar month names (Chithirai-Panguni) on Today view
+- [x] Vijayadashami festival rule (Navaratri day 10)
+- [x] 4-day Pongal sequence (Bhogi, Thai, Mattu, Kaanum)
+- [x] Default month system changed to Amanta (South Indian)
+- [x] Codebase audit (docs/AUDIT.md)
+- [x] Vijayadashami content page (with Vidyarambham, Saraswati Puja details)
+- [x] Bhogi/Mattu/Kaanum Pongal content pages
+- [x] Security: auth on /flagged endpoint, auth on /uploads
+- [x] 24 content pages total
 
 ## Remaining
 - [ ] **P2** Mobile builds (iOS TestFlight, Android APK)

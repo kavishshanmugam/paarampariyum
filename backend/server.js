@@ -18,8 +18,15 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Serve uploaded files
-app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve uploaded files (requires auth token)
+app.use('/api/uploads', (req, res, next) => {
+  const token = req.query.token || req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Authentication required' });
+  const db = req.app.locals.db;
+  const session = db.prepare("SELECT * FROM sessions WHERE token = ? AND expires_at > datetime('now')").get(token);
+  if (!session) return res.status(401).json({ error: 'Invalid or expired token' });
+  next();
+}, express.static(path.join(__dirname, 'uploads')));
 
 // Initialize database
 const db = initDb();

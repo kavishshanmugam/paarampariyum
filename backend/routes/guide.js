@@ -1,7 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 const router = express.Router();
 
 // Load content pages into memory at startup
@@ -323,9 +323,8 @@ router.post('/flag', requireAuth, (req, res) => {
   res.json({ message: 'Question flagged for review. Thank you.' });
 });
 
-// Get flagged questions (admin)
-router.get('/flagged', (req, res) => {
-  // Simple admin check via query param for now
+// Get flagged questions (admin only)
+router.get('/flagged', requireAdmin, (req, res) => {
   const flags = req.app.locals.db.prepare(
     'SELECT * FROM flagged_questions ORDER BY created_at DESC'
   ).all();
