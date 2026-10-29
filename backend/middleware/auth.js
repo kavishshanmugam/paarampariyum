@@ -5,7 +5,7 @@ function requireAuth(req, res, next) {
 
   const db = req.app.locals.db;
   const session = db.prepare(
-    `SELECT s.user_id, u.email, u.name, u.role, u.tradition, u.month_system
+    `SELECT s.user_id, u.email, u.name, u.role, u.tradition, u.month_system, u.household_id
      FROM sessions s JOIN users u ON s.user_id = u.id
      WHERE s.token = ? AND s.expires_at > datetime('now')`
   ).get(token);
@@ -19,6 +19,7 @@ function requireAuth(req, res, next) {
     role: session.role,
     tradition: session.tradition,
     monthSystem: session.month_system,
+    household_id: session.household_id,
   };
   next();
 }
