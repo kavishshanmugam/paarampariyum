@@ -731,17 +731,14 @@ pub fn default_rules() -> Vec<FestivalRule> {
         FestivalRule {
             id: "thaipusam".into(),
             name: "Thaipusam".into(),
-            name_te: None, name_kn: None, name_ml: None, name_ta: Some("\u{0BA4}\u{0BC8}\u{0BAA}\u{0BCD}\u{0BAA}\u{0BC2}\u{0B9A}\u{0BAE}\u{0BCD}".into()), // தைப்பூசம்
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("தைப்பூசம்".into()),
             festival_type: FestivalType::MajorFestival,
-            basis: RuleBasis::Lunar {
-                month: Some(LunarMonth::Magha),
-                paksha: Paksha::Shukla,
-                tithi: TithiName::Purnima,
-                must_prevail_during: TimeWindow::Sunrise,
-                tie_break: TieBreak::PreviousDay,
-                adhik_maas: AdhikMaasBehaviour::Skip,
+            basis: RuleBasis::SolarNakshatra {
+                solar_rashi: 9, // Makara (Capricorn) = Tamil month Thai
+                nakshatra: NakshatraName::Pushya, // Pusam/Pushya nakshatra
+                description: "Pushya nakshatra in Tamil month Thai -- Thaipusam; Parvati gave Murugan the Vel".into(),
             },
-            reason_template: "Magha Purnima -- Thaipusam; Parvati gave Murugan the Vel".into(),
+            reason_template: "Pushya nakshatra in Thai -- Thaipusam; Murugan receives the Vel".into(),
             variants: vec![],
             sequence: None,
         },
