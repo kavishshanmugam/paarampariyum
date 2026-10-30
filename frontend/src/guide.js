@@ -13,6 +13,7 @@
  */
 
 import { sendGuideMessage, flagQuestion, getToken } from './api.js';
+import { escapeHtml } from './utils.js';
 
 const messages = [];
 let conversationId = null;
@@ -384,8 +385,3 @@ if (typeof window !== 'undefined') {
   }, 100);
 }
 
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}

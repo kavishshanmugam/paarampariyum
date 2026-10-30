@@ -1,12 +1,8 @@
 /**
  * Calendar View - Month view with tithi overlay and festival markers.
- *
- * PRD requirements: CAL-2
- * - Gregorian date with tithi overlay
- * - Paksha and lunar month labels
- * - Event markers (color-coded by type)
- * - Month navigation
  */
+
+import { formatTime, getFestivalDotClass } from './utils.js';
 
 let currentYear, currentMonth;
 let yearViewActive = false;
@@ -234,22 +230,6 @@ function renderMonthFestivals(app, festivalsByDate) {
   `;
 }
 
-function getFestivalDotClass(type) {
-  if (typeof type === 'string') {
-    if (type.includes('Major')) return 'major';
-    if (type.includes('Solar')) return 'solar';
-    return 'recurring';
-  }
-  return 'recurring';
-}
-
-function formatTimeHours(hours) {
-  if (hours == null) return '-';
-  const h = Math.floor(hours);
-  const m = Math.floor((hours - h) * 60);
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-}
-
 function formatDateStr(d) {
   return d.getFullYear() + '-' +
     String(d.getMonth() + 1).padStart(2, '0') + '-' +
@@ -283,12 +263,12 @@ function showDayDetail(app, dateStr, panchang, festivals) {
     ${panchang.sunrise != null ? `
     <div class="info-row">
       <span class="info-label">Sunrise</span>
-      <span class="info-value">${formatTimeHours(panchang.sunrise)}</span>
+      <span class="info-value">${formatTime(panchang.sunrise)}</span>
     </div>` : ''}
     ${panchang.sunset != null ? `
     <div class="info-row">
       <span class="info-label">Sunset</span>
-      <span class="info-value">${formatTimeHours(panchang.sunset)}</span>
+      <span class="info-value">${formatTime(panchang.sunset)}</span>
     </div>` : ''}
     ` : '<p style="color:var(--text-muted);font-size:13px;">No panchang data available</p>'}
     ${festivals.length > 0 ? festivals.map(f => `

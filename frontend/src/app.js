@@ -34,6 +34,7 @@ class ParamparaApp {
       referenceCity: null,
       largeType: false,
       theme: 'auto',
+      birthStar: '', // Janma Nakshatram (e.g. 'Pushya')
       followedObservances: [], // empty = show all
     };
   }
@@ -301,6 +302,17 @@ class ParamparaApp {
         </div>
 
         <div class="settings-group">
+          <label class="settings-label">My Birth Star (Janma Nakshatram)</label>
+          <select id="setting-birth-star" class="settings-select">
+            <option value="">Not set</option>
+            ${['Ashwini','Bharani','Krittika','Rohini','Mrigashira','Ardra','Punarvasu','Pushya','Ashlesha','Magha','Purva Phalguni','Uttara Phalguni','Hasta','Chitra','Swati','Vishakha','Anuradha','Jyeshtha','Mula','Purva Ashadha','Uttara Ashadha','Shravana','Dhanishta','Shatabhisha','Purva Bhadrapada','Uttara Bhadrapada','Revati'].map(n =>
+              `<option value="${n}" ${this.profile.birthStar === n ? 'selected' : ''}>${n}</option>`
+            ).join('')}
+          </select>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">You'll see a reminder on your star day each month</div>
+        </div>
+
+        <div class="settings-group">
           <label class="settings-label" style="display: flex; align-items: center; gap: 8px;">
             <input type="checkbox" id="setting-large-type" ${this.profile.largeType ? 'checked' : ''}>
             Large type
@@ -348,6 +360,7 @@ class ParamparaApp {
     this.profile.sect = document.getElementById('setting-sect').value;
     this.profile.largeType = document.getElementById('setting-large-type').checked;
     this.profile.theme = document.getElementById('setting-theme').value;
+    this.profile.birthStar = document.getElementById('setting-birth-star').value;
 
     // Gather followed observances
     const checks = document.querySelectorAll('#follow-grid input[type="checkbox"]');
@@ -560,7 +573,8 @@ class ParamparaApp {
       ['bhogi-pongal', 'Bhogi Pongal'], ['pongal', 'Thai Pongal'],
       ['mattu-pongal', 'Mattu Pongal'], ['kaanum-pongal', 'Kaanum Pongal'],
       ['maha-shivaratri', 'Shivaratri'],
-      ['navaratri-golu', 'Navaratri Golu'], ['vijayadashami', 'Vijayadashami'],
+      ['navaratri-golu', 'Navaratri Golu'], ['saraswati-puja', 'Saraswati Puja'],
+      ['vijayadashami', 'Vijayadashami'],
       ['ganesh-chaturthi', 'Vinayagar Chaturthi'],
       ['karthigai-deepam', 'Karthigai Deepam'], ['thaipusam', 'Thaipusam'],
       ['skanda-shashthi', 'Skanda Shashthi'], ['ram-navami', 'Rama Navami'],
@@ -587,7 +601,7 @@ class ParamparaApp {
       'sankashti-chaturthi', 'purnima', 'amavasya', 'maha-shivaratri', 'ram-navami',
       'ganesh-chaturthi', 'pongal', 'onam', 'ugadi', 'navaratri-golu',
       'karthigai-deepam', 'thaipusam', 'skanda-shashthi', 'varalakshmi-vratam',
-      'aadi-perukku', 'ayyappa-mandalam', 'vijayadashami',
+      'aadi-perukku', 'ayyappa-mandalam', 'vijayadashami', 'saraswati-puja',
       'bhogi-pongal', 'mattu-pongal', 'kaanum-pongal',
     ];
 
@@ -614,7 +628,8 @@ class ParamparaApp {
       'maha-shivaratri': 'Maha Shivaratri', 'ram-navami': 'Sri Rama Navami',
       'ganesh-chaturthi': 'Vinayagar Chaturthi', 'pongal': 'Pongal',
       'onam': 'Onam', 'ugadi': 'Ugadi / Puthandu / Vishu',
-      'navaratri-golu': 'Navaratri Golu', 'vijayadashami': 'Vijayadashami (Saraswati Puja)',
+      'navaratri-golu': 'Navaratri Golu', 'saraswati-puja': 'Saraswati Puja (Navaratri Day 9)',
+      'vijayadashami': 'Vijayadashami (Vidyarambham)',
       'karthigai-deepam': 'Karthigai Deepam',
       'thaipusam': 'Thaipusam', 'skanda-shashthi': 'Skanda Shashthi',
       'varalakshmi-vratam': 'Varalakshmi Vratam',

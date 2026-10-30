@@ -50,6 +50,13 @@
 - [x] Bhogi/Mattu/Kaanum Pongal content pages
 - [x] Security: auth on /flagged endpoint, auth on /uploads
 - [x] 24 content pages total
+- [x] Birth star (Janma Nakshatram) tracking in Settings + Today view notification
+- [x] Saraswati Puja engine rule (Navaratri day 9)
+- [x] Extracted shared frontend utilities (formatTime, getFestivalDotClass, addDays, escapeHtml)
+- [x] Fixed Thaipusam rule (SolarNakshatra instead of Purnima)
+- [x] Fixed household_id missing from auth middleware
+- [x] Tauri v1.4.0 version bump
+- [x] 25 festival rules, 30 engine tests pass
 
 ## Remaining
 - [ ] **P2** Mobile builds (iOS TestFlight, Android APK)

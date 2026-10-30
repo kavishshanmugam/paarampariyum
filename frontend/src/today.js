@@ -1,13 +1,8 @@
 /**
  * Today View - Shows current panchang data and upcoming observances.
- *
- * PRD requirements: CAL-3
- * - Tithi with end time
- * - Nakshatra
- * - Sunrise and sunset
- * - Today's observances
- * - Next 7 days preview
  */
+
+import { formatTime, getFestivalDotClass, addDays } from './utils.js';
 
 export async function renderToday(app) {
   const container = document.getElementById('view-today');
@@ -70,8 +65,24 @@ function renderTodayContent(app, today, panchang, festivals, monthFestivals) {
       </div>`
     : '';
 
+  // Birth star day notification
+  const birthStar = app.profile.birthStar;
+  const todayNakshatra = panchang.nakshatra?.name || '';
+  // Normalize for comparison (engine uses PascalCase without spaces, profile has spaces)
+  const normalizedBirthStar = birthStar?.replace(/\s+/g, '') || '';
+  const normalizedNakshatra = todayNakshatra.replace(/\s+/g, '');
+  const isBirthStarDay = normalizedBirthStar && normalizedNakshatra === normalizedBirthStar;
+
+  const birthStarBanner = isBirthStarDay
+    ? `<div class="festival-alert-banner birth-star">
+        <span class="festival-alert-icon">⭐</span>
+        <span>Today is your Janma Nakshatram (${birthStar})!</span>
+      </div>`
+    : '';
+
   return `
     ${alertBanner}
+    ${birthStarBanner}
     <!-- Today Header -->
     <div class="today-header">
       <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
@@ -280,30 +291,6 @@ function moonPhaseHtml(panchang) {
   else if (illum < 95) idx = isShukla ? 4 : 4;
   else idx = 4;
   return `<span style="font-size:32px;line-height:1;">${phases[idx]}</span>`;
-}
-
-function formatTime(hours) {
-  if (hours == null) return '-';
-  const h = Math.floor(hours);
-  const m = Math.floor((hours - h) * 60);
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-}
-
-function getFestivalDotClass(type) {
-  if (typeof type === 'string') {
-    if (type.includes('Major')) return 'major';
-    if (type.includes('Solar')) return 'solar';
-    return 'recurring';
-  }
-  return 'recurring';
-}
-
-function addDays(dateStr, days) {
-  const d = new Date(dateStr + 'T00:00:00');
-  d.setDate(d.getDate() + days);
-  return d.getFullYear() + '-' +
-    String(d.getMonth() + 1).padStart(2, '0') + '-' +
-    String(d.getDate()).padStart(2, '0');
 }
 
 // === Compare with India ===

@@ -7,6 +7,7 @@
  */
 
 import { getNotes, createNote, updateNote, deleteNote, uploadNoteFile, getToken } from './api.js';
+import { escapeHtml } from './utils.js';
 
 // ponytail: no markdown lib -- regex-based renderer, add marked.js if formatting falls short
 function parseMarkdown(md) {
@@ -766,10 +767,6 @@ function renderSection(section) {
 
   html += `</div>`;
   return html;
-}
-
-function escapeHtml(str) {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function escapeAttr(str) {

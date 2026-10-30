@@ -676,7 +676,25 @@ pub fn default_rules() -> Vec<FestivalRule> {
             variants: vec![],
             sequence: Some(FestivalSequence { group: "navaratri".into(), day: 1, total: 10 }),
         },
-        // Vijayadashami / Saraswati Puja -- 10th day of Navaratri
+        // Saraswati Puja -- 9th day of Navaratri (Maha Navami)
+        FestivalRule {
+            id: "saraswati-puja".into(),
+            name: "Saraswati Puja".into(),
+            name_te: None, name_kn: None, name_ml: None, name_ta: Some("சரஸ்வதி பூஜை".into()),
+            festival_type: FestivalType::MajorFestival,
+            basis: RuleBasis::Lunar {
+                month: Some(LunarMonth::Ashvina),
+                paksha: Paksha::Shukla,
+                tithi: TithiName::Navami,
+                must_prevail_during: TimeWindow::Sunrise,
+                tie_break: TieBreak::NextDay,
+                adhik_maas: AdhikMaasBehaviour::Skip,
+            },
+            reason_template: "{tithi} of {paksha} Paksha -- Saraswati Puja; place books and instruments for worship".into(),
+            variants: vec![],
+            sequence: Some(FestivalSequence { group: "navaratri".into(), day: 9, total: 10 }),
+        },
+        // Vijayadashami -- 10th day of Navaratri
         FestivalRule {
             id: "vijayadashami".into(),
             name: "Vijayadashami".into(),
